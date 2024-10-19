@@ -1,4 +1,4 @@
-package com.github.jvsena42.floresta.ui.theme
+package com.github.jvsena42.floresta.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
