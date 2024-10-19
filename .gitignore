@@ -9,11 +9,8 @@ gradle/wrapper/gradle-wrapper.jar
 .gradle/wrapper/
 
 # Android-specific
-android/
 app/build/
 app/captures/
-app/src/main/res/
-app/src/main/assets/
 
 # iOS-specific
 ios/
