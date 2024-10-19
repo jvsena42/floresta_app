@@ -1,12 +1,53 @@
 # Gradle files
 .gradle/
 build/
+.mvn/
+.vscode/
+gradle/wrapper/gradle-wrapper.jar
+.gradle/caches/
+.gradle/buildinfo/
+.gradle/wrapper/
+
+# Android-specific
+android/
+app/build/
+app/captures/
+app/src/main/res/
+app/src/main/assets/
+
+# iOS-specific
+ios/
+*.xcarchive
+*.xcworkspace
+*.xcodeproj
+
+# IDE-specific files
+*.iws
+*.idea/.name
+*.idea/encodings.xml
+*.idea/modules.xml
+*.idea/workspace.xml
+*.pid
+*.run.xml
+
+# Test results
+test-results/
+test-reports/
+
+# Temporary files
+*.tmp
+*.swp
 
 # Local configuration file (sdk path, etc)
 local.properties
 
 # Log/OS Files
 *.log
+
+# Kotlin-specific
+.kotlin_cache/
+kotlinc/
+kotlin-tooling-box/
 
 # Android Studio generated files and folders
 captures/
