@@ -1,16 +1,27 @@
 package com.github.jvsena42.floresta.domain.bitcoin
 
 import android.util.Log
+import com.github.jvsena42.floresta.domain.model.ChainPosition
+import com.github.jvsena42.floresta.domain.model.TransactionDetails
+import com.github.jvsena42.floresta.domain.model.TxType
+import org.bitcoindevkit.Address
+import org.bitcoindevkit.AddressInfo
 import org.bitcoindevkit.Connection
 import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.DescriptorSecretKey
 import org.bitcoindevkit.ElectrumClient
 import org.bitcoindevkit.KeychainKind
 import org.bitcoindevkit.Mnemonic
+import org.bitcoindevkit.Psbt
+import org.bitcoindevkit.Transaction
+import org.bitcoindevkit.TxBuilder
 import org.bitcoindevkit.Update
 import org.bitcoindevkit.Wallet
 import org.bitcoindevkit.WordCount
+import org.rustbitcoin.bitcoin.Amount
+import org.rustbitcoin.bitcoin.FeeRate
 import org.rustbitcoin.bitcoin.Network
+import org.bitcoindevkit.ChainPosition as BdkChainPosition
 
 class WalletManager(
     dbPath: String,
@@ -157,6 +168,70 @@ class WalletManager(
         return wallet.balance().total.toSat()
     }
 
+    fun getLastUnusedAddress(): AddressInfo {
+        return wallet.revealNextAddress(KeychainKind.EXTERNAL)
+    }
+
+    fun createPartiallySignedTransaction(
+        recipientAddress: String,
+        amount: Amount,
+        feeRate: FeeRate
+    ): Psbt {
+        val recipientScriptPubKey = Address(recipientAddress, Network.SIGNET).scriptPubkey()
+        return TxBuilder()
+            .addRecipient(recipientScriptPubKey, amount)
+            .feeRate(feeRate)
+            .finish(wallet)
+    }
+
+    fun sign(partiallySignedTransaction: Psbt) {
+        wallet.sign(partiallySignedTransaction)
+    }
+
+    fun listTransactions(): List<TransactionDetails> {
+        return wallet.transactions().map { tx ->
+            val (sent, received) = wallet.sentAndReceived(tx.transaction)
+            val fee = wallet.calculateFee(tx.transaction)
+            val feeRate = wallet.calculateFeeRate(tx.transaction)
+            val txType: TxType = txType(sent = sent.toSat(), received = received.toSat())
+            val chainPosition: ChainPosition = when (val position = tx.chainPosition) {
+                is BdkChainPosition.Unconfirmed -> ChainPosition.Unconfirmed
+                is BdkChainPosition.Confirmed -> ChainPosition.Confirmed(
+                    position.confirmationBlockTime.blockId.height,
+                    position.confirmationBlockTime.confirmationTime
+                )
+            }
+
+            TransactionDetails(
+                txid = tx.transaction.computeTxid(),
+                sent = sent,
+                received = received,
+                fee = fee,
+                feeRate = feeRate,
+                txType = txType,
+                chainPosition = chainPosition
+            )
+        }
+    }
+
+    fun getTransaction(txid: String): TransactionDetails? {
+        val allTransactions = listTransactions()
+        allTransactions.forEach {
+            if (it.txid == txid) {
+                return it
+            }
+        }
+        return null
+    }
+
+    fun broadcast(tx: Transaction): String {
+        blockchainClient.broadcast(tx)
+        return tx.computeTxid()
+    }
+
+    fun txType(sent: ULong, received: ULong): TxType {
+        return if (sent > received) TxType.PAYMENT else TxType.RECEIVE
+    }
 
     companion object {
         private const val TAG = "WalletObject"

@@ -26,8 +26,9 @@ class FlorestaApplication : Application() {
 private val presentationModule = module {
     viewModel { MainViewmodel() }
 }
+
 private val domainModule = module {
-    single { WalletManager(androidApplication().filesDir.toString()) }
+    single { WalletManager(dbPath = androidApplication().filesDir.toString(), walletRepository = get()) }
     single<WalletRepository> {
         WalletRepositoryImpl(
             androidApplication().getSharedPreferences(
