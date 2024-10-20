@@ -5,16 +5,18 @@ import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.DescriptorSecretKey
 import org.bitcoindevkit.KeychainKind
 import org.bitcoindevkit.Mnemonic
+import org.bitcoindevkit.Wallet
 import org.bitcoindevkit.WordCount
 import org.rustbitcoin.bitcoin.Network
 
 class WalletManager(
     private val dbPath: String,
+    private val walletRepository: WalletRepository
 ) {
 
     private lateinit var dbConnection: Connection
     private lateinit var florestaDbPath: String
-    private lateinit var wallet: org.bitcoindevkit.Wallet
+    private lateinit var wallet: Wallet
 
     init {
         setPathAndConnectDb(dbPath)
@@ -31,7 +33,7 @@ class WalletManager(
         descriptor: Descriptor,
         changeDescriptor: Descriptor,
     ) {
-        wallet = org.bitcoindevkit.Wallet(
+        wallet = Wallet(
             descriptor,
             changeDescriptor,
             Network.SIGNET,
@@ -59,8 +61,32 @@ class WalletManager(
             changeDescriptor = changeDescriptor
         )
 
-        //TODO SAVE WALLET
-        //TODO SAVE Mnemonic
+        walletRepository.saveWallet(
+            path = dbPath,
+            descriptor = descriptor.toStringWithSecret(),
+            changeDescriptor = changeDescriptor.toStringWithSecret()
+        )
+
+        walletRepository.saveMnemonic(mnemonic.toString())
+    }
+
+    fun loadWallet() : Result<Unit> {
+        val result = walletRepository.getInitialWalletData().onFailure { e ->
+            return@loadWallet Result.failure(e)
+        }
+
+        val data = result.getOrNull() ?: return Result.failure(Exception())
+
+        val descriptor = Descriptor(data.descriptor, Network.SIGNET)
+        val changeDescriptor = Descriptor(data.descriptor, Network.SIGNET)
+
+        wallet = Wallet.load(
+            descriptor = descriptor,
+            changeDescriptor = changeDescriptor,
+            connection = dbConnection
+        )
+
+        return Result.success(Unit)
     }
 
     companion object {
