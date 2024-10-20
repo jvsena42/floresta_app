@@ -1,5 +1,6 @@
 package com.github.jvsena42.floresta.domain.bitcoin
 
+import android.util.Log
 import org.bitcoindevkit.Connection
 import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.DescriptorSecretKey
@@ -133,6 +134,26 @@ class WalletManager(
         wallet.applyUpdate(update)
         wallet.persist(dbConnection)
     }
+
+    fun sync() {
+        if (fullScanRequired) {
+            Log.d(TAG, "sync: fullScanRequired")
+            fullScan()
+            fullScanRequired = false
+        } else {
+            Log.d(TAG, "sync: normal sync")
+            val syncRequest = wallet.startSyncWithRevealedSpks().build()
+            val update = blockchainClient.sync(
+                syncRequest = syncRequest,
+                batchSize = 10u,
+                fetchPrevTxouts = true
+            )
+            wallet.applyUpdate(update)
+            wallet.persist(dbConnection)
+        }
+    }
+
+
 
     companion object {
         private const val TAG = "WalletObject"
