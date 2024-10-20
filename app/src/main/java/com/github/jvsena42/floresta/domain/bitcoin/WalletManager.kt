@@ -8,7 +8,7 @@ import org.bitcoindevkit.Mnemonic
 import org.bitcoindevkit.WordCount
 import org.rustbitcoin.bitcoin.Network
 
-class WalletMethods(
+class WalletManager(
     private val dbPath: String,
 ) {
 
@@ -66,6 +66,6 @@ class WalletMethods(
     companion object {
         private const val TAG = "WalletObject"
         private const val SIGNET_ELECTRUM_URL: String = "ssl://mempool.space:60602" //TODO IMPLEMENT FLORESTA URL
-        private const val PERSISTENCE_VERSION = "V1"
+        const val PERSISTENCE_VERSION = "V1"
     }
 }

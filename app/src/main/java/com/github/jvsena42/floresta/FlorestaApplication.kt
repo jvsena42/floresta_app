@@ -1,7 +1,10 @@
 package com.github.jvsena42.floresta
 
 import android.app.Application
-import com.github.jvsena42.floresta.domain.bitcoin.WalletMethods
+import android.content.Context
+import com.github.jvsena42.floresta.domain.bitcoin.WalletManager
+import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
+import com.github.jvsena42.floresta.domain.bitcoin.WalletRepositoryImpl
 import com.github.jvsena42.floresta.presentation.MainViewmodel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.context.startKoin
@@ -12,12 +15,25 @@ class FlorestaApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
-            modules(appModule)
+            modules(
+                domainModule,
+                presentationModule
+            )
         }
     }
 }
 
-private val appModule = module {
-    single { WalletMethods(androidApplication().filesDir.toString()) }
+private val presentationModule = module {
     viewModel { MainViewmodel() }
+}
+private val domainModule = module {
+    single { WalletManager(androidApplication().filesDir.toString()) }
+    single<WalletRepository> {
+        WalletRepositoryImpl(
+            androidApplication().getSharedPreferences(
+                "wallet",
+                Context.MODE_PRIVATE
+            )
+        )
+    }
 }
