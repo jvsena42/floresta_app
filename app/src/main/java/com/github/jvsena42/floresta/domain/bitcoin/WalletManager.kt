@@ -153,6 +153,9 @@ class WalletManager(
         }
     }
 
+    fun getBalance(): ULong {
+        return wallet.balance().total.toSat()
+    }
 
 
     companion object {
