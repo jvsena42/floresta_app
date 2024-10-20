@@ -10,7 +10,7 @@ import org.bitcoindevkit.WordCount
 import org.rustbitcoin.bitcoin.Network
 
 class WalletManager(
-    private val dbPath: String,
+    dbPath: String,
     private val walletRepository: WalletRepository
 ) {
 
@@ -62,7 +62,7 @@ class WalletManager(
         )
 
         walletRepository.saveWallet(
-            path = dbPath,
+            path = florestaDbPath,
             descriptor = descriptor.toStringWithSecret(),
             changeDescriptor = changeDescriptor.toStringWithSecret()
         )
@@ -87,6 +87,35 @@ class WalletManager(
         )
 
         return Result.success(Unit)
+    }
+
+    fun recoverWallet(recoveryPhrase: String) {
+        val mnemonic = Mnemonic.fromString(recoveryPhrase)
+        val bip32ExtendedRootKey = DescriptorSecretKey(Network.SIGNET, mnemonic, null)
+
+        val descriptor: Descriptor = Descriptor.newBip84(
+            bip32ExtendedRootKey,
+            KeychainKind.EXTERNAL,
+            Network.SIGNET
+        )
+
+        val changeDescriptor: Descriptor = Descriptor.newBip84(
+            bip32ExtendedRootKey,
+            KeychainKind.INTERNAL,
+            Network.SIGNET
+        )
+
+        initialize(
+            descriptor = descriptor,
+            changeDescriptor = changeDescriptor,
+        )
+
+        walletRepository.saveWallet(
+            florestaDbPath,
+            descriptor.toStringWithSecret(),
+            changeDescriptor.toStringWithSecret()
+        )
+        walletRepository.saveMnemonic(mnemonic.toString())
     }
 
     companion object {
