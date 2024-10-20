@@ -1,7 +1,9 @@
 package com.github.jvsena42.floresta
 
 import android.app.Application
+import com.github.jvsena42.floresta.domain.bitcoin.WalletMethods
 import com.github.jvsena42.floresta.presentation.MainViewmodel
+import org.koin.android.ext.koin.androidApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -16,5 +18,6 @@ class FlorestaApplication : Application() {
 }
 
 private val appModule = module {
+    single { WalletMethods(androidApplication().filesDir.toString()) }
     viewModel { MainViewmodel() }
 }
