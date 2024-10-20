@@ -3,8 +3,10 @@ package com.github.jvsena42.floresta.domain.bitcoin
 import org.bitcoindevkit.Connection
 import org.bitcoindevkit.Descriptor
 import org.bitcoindevkit.DescriptorSecretKey
+import org.bitcoindevkit.ElectrumClient
 import org.bitcoindevkit.KeychainKind
 import org.bitcoindevkit.Mnemonic
+import org.bitcoindevkit.Update
 import org.bitcoindevkit.Wallet
 import org.bitcoindevkit.WordCount
 import org.rustbitcoin.bitcoin.Network
@@ -17,6 +19,8 @@ class WalletManager(
     private lateinit var dbConnection: Connection
     private lateinit var florestaDbPath: String
     private lateinit var wallet: Wallet
+    private val blockchainClient: ElectrumClient by lazy { ElectrumClient(SIGNET_ELECTRUM_URL) }
+    private var fullScanRequired: Boolean = false
 
     init {
         setPathAndConnectDb(dbPath)
@@ -70,7 +74,7 @@ class WalletManager(
         walletRepository.saveMnemonic(mnemonic.toString())
     }
 
-    fun loadWallet() : Result<Unit> {
+    fun loadWallet(): Result<Unit> {
         val result = walletRepository.getInitialWalletData().onFailure { e ->
             return@loadWallet Result.failure(e)
         }
@@ -118,9 +122,22 @@ class WalletManager(
         walletRepository.saveMnemonic(mnemonic.toString())
     }
 
+    private fun fullScan() {
+        val fullScanRequest = wallet.startFullScan().build()
+        val update: Update = blockchainClient.fullScan(
+            fullScanRequest = fullScanRequest,
+            stopGap = 100u,
+            batchSize = 10u,
+            fetchPrevTxouts = true
+        )
+        wallet.applyUpdate(update)
+        wallet.persist(dbConnection)
+    }
+
     companion object {
         private const val TAG = "WalletObject"
-        private const val SIGNET_ELECTRUM_URL: String = "ssl://mempool.space:60602" //TODO IMPLEMENT FLORESTA URL
+        private const val SIGNET_ELECTRUM_URL: String =
+            "ssl://mempool.space:60602" //TODO IMPLEMENT FLORESTA URL
         const val PERSISTENCE_VERSION = "V1"
     }
 }
