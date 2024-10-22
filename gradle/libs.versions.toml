@@ -32,6 +32,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 bdk-android = { group = "org.bitcoindevkit", name = "bdk-android", version.ref = "bdk-android" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+jna = { group = "net.java.dev.jna", name = "jna", version = "5.14.0" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { module = "io.insert-koin:koin-android" }
