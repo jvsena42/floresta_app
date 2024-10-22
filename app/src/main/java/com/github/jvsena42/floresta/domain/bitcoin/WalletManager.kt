@@ -31,7 +31,7 @@ class WalletManager(
     private lateinit var dbConnection: Connection
     private lateinit var florestaDbPath: String
     private lateinit var wallet: Wallet
-    private val blockchainClient: ElectrumClient by lazy { ElectrumClient(SIGNET_ELECTRUM_URL) }
+    private val blockchainClient: ElectrumClient by lazy { ElectrumClient(ELECTRUM_ADDRESS) }
     private var fullScanRequired: Boolean = false
 
     init {
@@ -235,8 +235,7 @@ class WalletManager(
 
     companion object {
         private const val TAG = "WalletObject"
-        private const val SIGNET_ELECTRUM_URL: String =
-            "ssl://mempool.space:60602" //TODO IMPLEMENT FLORESTA URL
+        const val ELECTRUM_ADDRESS = "127.0.0.1:50001"
         const val PERSISTENCE_VERSION = "V1"
     }
 }
