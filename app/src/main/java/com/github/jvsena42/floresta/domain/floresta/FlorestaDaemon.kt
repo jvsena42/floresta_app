@@ -15,7 +15,7 @@ interface FlorestaDaemon {
     suspend fun stop()
 }
 
-class FlorestaDaemonImpl (
+class FlorestaDaemonImpl(
     private val datadir: String,
     private val walletRepository: WalletRepository
 ) : FlorestaDaemon {
@@ -49,9 +49,12 @@ class FlorestaDaemonImpl (
                 walletDescriptor = descriptorList.toString()
             )
             daemon = Florestad.fromConfig(config)
-            daemon.start().also { isRunning = true }
+            daemon.start().also {
+                Log.i(TAG, "start: Floresta running with config $config")
+                isRunning = true
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "start error: ",e)
+            Log.e(TAG, "start error: ", e)
         }
     }
 
