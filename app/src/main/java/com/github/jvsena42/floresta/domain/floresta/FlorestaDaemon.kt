@@ -38,6 +38,9 @@ class FlorestaDaemonImpl (
                 )
             }
             Log.d(TAG, "start: descriptor list: $descriptorList")
+            if (descriptorList.isNullOrEmpty()) {
+                Log.w(TAG, "start: Empty descriptor list")
+            }
             Log.d(TAG, "start: datadir: $datadir")
             val config = Config(
                 dataDir = datadir,
