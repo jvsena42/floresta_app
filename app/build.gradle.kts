@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.github.jvsena42.floresta"
-        minSdk = 24
+        minSdk = 33
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
+    implementation("net.java.dev.jna:jna:5.14.0@aar")
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)

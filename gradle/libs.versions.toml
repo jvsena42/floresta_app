@@ -9,6 +9,7 @@ lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.3"
 composeBom = "2024.10.00"
 bdk-android = "1.0.0-beta.5"
+jetbrainsKotlinJvm = "2.0.20"
 koin-bom = "4.0.0"
 
 [libraries]
@@ -36,4 +37,6 @@ koin-viewmodel = { module = "io.insert-koin:koin-core-viewmodel" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
