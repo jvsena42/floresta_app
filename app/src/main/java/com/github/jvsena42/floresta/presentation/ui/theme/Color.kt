@@ -12,4 +12,5 @@ val Pink40 = Color(0xFF7D5260)
 
 
 val Primary = Color(0xFF0E5130)
+val Danger = Color(0xFFCF1C0E)
 
