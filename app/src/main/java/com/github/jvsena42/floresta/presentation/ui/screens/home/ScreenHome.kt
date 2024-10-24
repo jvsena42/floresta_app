@@ -1,6 +1,7 @@
 package com.github.jvsena42.floresta.presentation.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,9 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.jvsena42.floresta.R
+import com.github.jvsena42.floresta.presentation.ui.screens.home.components.TransactionItem
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
 import com.github.jvsena42.floresta.presentation.ui.theme.Primary
 
@@ -130,6 +135,27 @@ private fun ScreenHome(
                     modifier = Modifier.padding(horizontal = 8.dp),
                     color = Color.Black
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                LazyColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(uiState.transactions, key = { item -> item.title }) { item ->
+                        TransactionItem(
+                            title = item.title,
+                            date = item.date,
+                            amount = item.amount,
+                            isReceived = item.isReceived,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        HorizontalDivider()
+                    }
+                }
             }
         }
     }
@@ -138,6 +164,41 @@ private fun ScreenHome(
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
-    ScreenHome(HomeUIState(balanceBTC = "0.05411", balanceSats = "5.411.000"))
+    ScreenHome(
+        HomeUIState(
+            balanceBTC = "0.05411", balanceSats = "5.411.000", transactions = listOf(
+                TransactionVM(
+                    title = "ASDN646AS8D46ASD8FF8AS84F68AS4DA5F3",
+                    date = "01/02/2024 19:32",
+                    amount = "15265",
+                    isReceived = false,
+                ),
+                TransactionVM(
+                    title = "ASDN646AS8D46AS8FF8AS84F68AS4DAS5F3",
+                    date = "01/02/2024 19:32",
+                    amount = "15265",
+                    isReceived = true,
+                ),
+                TransactionVM(
+                    title = "ASD646AS8D46ASD8FF8AS84F68AS4DAS5F3",
+                    date = "01/02/2024 19:32",
+                    amount = "15265",
+                    isReceived = false,
+                ),
+                TransactionVM(
+                    title = "ASDN646AS8D46ASD8FFAS84F68AS4DAS5F3",
+                    date = "01/02/2024 19:32",
+                    amount = "15265",
+                    isReceived = true,
+                ),
+                TransactionVM(
+                    title = "ASDN646AS846ASD8FF8AS84F68AS4DAS5F3",
+                    date = "01/02/2024 19:32",
+                    amount = "15265",
+                    isReceived = false,
+                ),
+            )
+        )
+    )
 }
 
