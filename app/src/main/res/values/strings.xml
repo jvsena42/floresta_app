@@ -2,4 +2,6 @@
     <string name="app_name">Floresta</string>
     <string name="btc">BTC</string>
     <string name="sats">sats</string>
+    <string name="refresh">Refresh</string>
+    <string name="new_wallet">New wallet</string>
 </resources>
