@@ -36,6 +36,9 @@ class WalletManager(
 
     init {
         setPathAndConnectDb(dbPath)
+        if (walletRepository.doesWalletExist()) {
+            loadWallet()
+        }
     }
 
     private fun isWalletInitialized() = ::wallet.isInitialized
@@ -87,22 +90,28 @@ class WalletManager(
     }
 
     fun loadWallet(): Result<Unit> {
-        val result = walletRepository.getInitialWalletData().onFailure { e ->
-            return@loadWallet Result.failure(e)
+        return try {
+            val result = walletRepository.getInitialWalletData().onFailure { e ->
+                return@loadWallet Result.failure(e)
+            }
+
+            val data = result.getOrNull() ?: return Result.failure(Exception())
+
+            val descriptor = Descriptor(data.descriptor, Network.SIGNET)
+            val changeDescriptor = Descriptor(data.changeDescriptor, Network.SIGNET)
+
+
+            wallet = Wallet.load(
+                descriptor = descriptor,
+                changeDescriptor = changeDescriptor,
+                connection = dbConnection
+            )
+
+            return Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "loadWallet: ", e)
+            return Result.failure(e)
         }
-
-        val data = result.getOrNull() ?: return Result.failure(Exception())
-
-        val descriptor = Descriptor(data.descriptor, Network.SIGNET)
-        val changeDescriptor = Descriptor(data.descriptor, Network.SIGNET)
-
-        wallet = Wallet.load(
-            descriptor = descriptor,
-            changeDescriptor = changeDescriptor,
-            connection = dbConnection
-        )
-
-        return Result.success(Unit)
     }
 
     fun recoverWallet(recoveryPhrase: String) {
