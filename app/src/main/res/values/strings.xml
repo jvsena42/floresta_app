@@ -4,4 +4,5 @@
     <string name="sats">sats</string>
     <string name="refresh">Refresh</string>
     <string name="new_wallet">New wallet</string>
+    <string name="transactions">Transactions</string>
 </resources>
