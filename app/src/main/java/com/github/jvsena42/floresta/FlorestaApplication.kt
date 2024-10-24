@@ -10,6 +10,7 @@ import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemon
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl
 import com.github.jvsena42.floresta.domain.floresta.FlorestaService
 import com.github.jvsena42.floresta.presentation.MainViewmodel
+import com.github.jvsena42.floresta.presentation.ui.screens.home.HomeViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -34,6 +35,11 @@ class FlorestaApplication : Application() {
 
 private val presentationModule = module {
     viewModel { MainViewmodel() }
+    viewModel { HomeViewModel(
+        walletRepository = get(),
+        walletManager = get(),
+        florestaDaemon = get()
+    ) }
 }
 
 private val domainModule = module {

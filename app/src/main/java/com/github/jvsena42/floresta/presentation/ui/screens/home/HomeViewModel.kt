@@ -10,6 +10,7 @@ import com.github.jvsena42.floresta.presentation.util.formatInBtc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,10 +20,10 @@ class HomeViewModel(
     private val walletRepository: WalletRepository,
     private val walletManager: WalletManager,
     private val florestaDaemon: FlorestaDaemon
-    ) : ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUIState())
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
     init {
         syncInLoop()

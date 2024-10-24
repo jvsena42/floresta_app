@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.github.jvsena42.floresta.presentation.ui.screens.home.ScreenHome
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,28 +21,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             FlorestaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    ScreenHome(innerPadding)
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FlorestaTheme {
-        Greeting("Android")
     }
 }
