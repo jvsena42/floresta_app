@@ -37,11 +37,12 @@ import com.github.jvsena42.floresta.R
 import com.github.jvsena42.floresta.presentation.ui.screens.home.components.TransactionItem
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
 import com.github.jvsena42.floresta.presentation.ui.theme.Primary
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ScreenHome(
     innerPadding: PaddingValues,
-    viewmodel: HomeViewModel = viewModel()
+    viewmodel: HomeViewModel = koinViewModel()
 ) {
     val uiState: HomeUIState by viewmodel.uiState.collectAsState()
     ScreenHome(uiState)

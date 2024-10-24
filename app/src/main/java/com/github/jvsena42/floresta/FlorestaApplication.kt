@@ -3,6 +3,7 @@ package com.github.jvsena42.floresta
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.github.jvsena42.floresta.domain.bitcoin.WalletManager
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepositoryImpl
@@ -20,7 +21,6 @@ import org.koin.dsl.module
 class FlorestaApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        startService(Intent(this, FlorestaService::class.java))
         startKoin {
             androidLogger()
             androidContext(this@FlorestaApplication)
@@ -28,6 +28,11 @@ class FlorestaApplication : Application() {
                 domainModule,
                 presentationModule
             )
+        }
+        try {
+            startService(Intent(this, FlorestaService::class.java))
+        } catch (e: Exception) {
+            Log.e("FlorestaApplication", "onCreate: ", e)
         }
     }
 }
