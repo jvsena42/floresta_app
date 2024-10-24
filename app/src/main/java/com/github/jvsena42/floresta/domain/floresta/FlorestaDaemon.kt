@@ -4,10 +4,12 @@ import android.util.Log
 import com.florestad.Config
 import com.florestad.Florestad
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
+import kotlinx.coroutines.delay
 import org.bitcoindevkit.Descriptor
 import org.rustbitcoin.bitcoin.Network
 import com.florestad.Network as FlorestaNetwork
 import kotlin.let
+import kotlin.time.Duration.Companion.seconds
 
 interface FlorestaDaemon {
     suspend fun start()
@@ -61,6 +63,7 @@ class FlorestaDaemonImpl(
     override suspend fun restart() {
         if (isRunning) {
             stop()
+            delay(3.seconds)
             start()
         } else {
             start()
