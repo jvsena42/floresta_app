@@ -32,6 +32,7 @@ class HomeViewModel(
     private suspend fun updateUI() {
         if (walletRepository.doesWalletExist()) {
             Log.d(TAG, "setup: Wallet exists")
+            walletManager.loadWallet()
             val balanceSats = walletManager.getBalance()
             _uiState.update {
                 it.copy(
@@ -49,6 +50,7 @@ class HomeViewModel(
 
     private fun syncInLoop() {
         viewModelScope.launch(Dispatchers.IO) {
+            delay(5.seconds)
             updateUI()
             walletManager.sync()
             delay(5.seconds)

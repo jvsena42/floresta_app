@@ -71,6 +71,7 @@ class FlorestaDaemonImpl(
     }
 
     override suspend fun stop() {
+        if (!isRunning) return
         daemon.stop()
         isRunning = false
     }

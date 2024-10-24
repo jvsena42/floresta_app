@@ -3,6 +3,7 @@ package com.github.jvsena42.floresta
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import com.github.jvsena42.floresta.domain.bitcoin.WalletManager
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
@@ -30,7 +31,7 @@ class FlorestaApplication : Application() {
             )
         }
         try {
-            startService(Intent(this, FlorestaService::class.java))
+            startForegroundService(Intent(this, FlorestaService::class.java))
         } catch (e: Exception) {
             Log.e("FlorestaApplication", "onCreate: ", e)
         }
@@ -39,11 +40,13 @@ class FlorestaApplication : Application() {
 
 val presentationModule = module {
     viewModel { MainViewmodel() }
-    viewModel { HomeViewModel(
-        walletRepository = get(),
-        walletManager = get(),
-        florestaDaemon = get()
-    ) }
+    viewModel {
+        HomeViewModel(
+            walletRepository = get(),
+            walletManager = get(),
+            florestaDaemon = get()
+        )
+    }
 }
 
 val domainModule = module {
