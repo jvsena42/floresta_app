@@ -2,6 +2,7 @@ package com.github.jvsena42.floresta.domain.bitcoin
 
 import android.util.Log
 import com.github.jvsena42.floresta.domain.model.ChainPosition
+import com.github.jvsena42.floresta.domain.model.Constants.PERSISTENCE_VERSION
 import com.github.jvsena42.floresta.domain.model.TransactionDetails
 import com.github.jvsena42.floresta.domain.model.TxType
 import org.bitcoindevkit.Address
@@ -36,6 +37,9 @@ class WalletManager(
 
     init {
         setPathAndConnectDb(dbPath)
+        if (walletRepository.doesWalletExist()) {
+            loadWallet()
+        }
     }
 
     private fun isWalletInitialized() = ::wallet.isInitialized
@@ -87,22 +91,28 @@ class WalletManager(
     }
 
     fun loadWallet(): Result<Unit> {
-        val result = walletRepository.getInitialWalletData().onFailure { e ->
-            return@loadWallet Result.failure(e)
+        return try {
+            val result = walletRepository.getInitialWalletData().onFailure { e ->
+                return@loadWallet Result.failure(e)
+            }
+
+            val data = result.getOrNull() ?: return Result.failure(Exception())
+
+            val descriptor = Descriptor(data.descriptor, Network.SIGNET)
+            val changeDescriptor = Descriptor(data.changeDescriptor, Network.SIGNET)
+
+
+            wallet = Wallet.load(
+                descriptor = descriptor,
+                changeDescriptor = changeDescriptor,
+                connection = dbConnection
+            )
+
+            return Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "loadWallet: ", e)
+            return Result.failure(e)
         }
-
-        val data = result.getOrNull() ?: return Result.failure(Exception())
-
-        val descriptor = Descriptor(data.descriptor, Network.SIGNET)
-        val changeDescriptor = Descriptor(data.descriptor, Network.SIGNET)
-
-        wallet = Wallet.load(
-            descriptor = descriptor,
-            changeDescriptor = changeDescriptor,
-            connection = dbConnection
-        )
-
-        return Result.success(Unit)
     }
 
     fun recoverWallet(recoveryPhrase: String) {
@@ -236,6 +246,5 @@ class WalletManager(
     companion object {
         private const val TAG = "WalletObject"
         const val ELECTRUM_ADDRESS = "127.0.0.1:50001"
-        const val PERSISTENCE_VERSION = "V1"
     }
 }
