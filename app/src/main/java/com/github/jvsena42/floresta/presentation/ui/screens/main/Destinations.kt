@@ -10,5 +10,5 @@ enum class Destinations(
     val label: String,
     @DrawableRes val icon: Int
 ) {
-    HOME(route = "Home", label = "Home", R.drawable.ic_add)
+    HOME(route = "Home", label = "Home", R.drawable.ic_home)
 }
