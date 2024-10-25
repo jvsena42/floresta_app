@@ -25,7 +25,7 @@ fun ScreenReceive(
     viewModel: ReceiveViewModel = koinViewModel()
 ) {
     val uiState: ReceiveUIState by viewModel.uiState.collectAsState()
-
+    ScreenReceive(uiState)
 }
 
 @Composable
@@ -38,11 +38,20 @@ private fun ScreenReceive(uiState: ReceiveUIState) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AnimatedVisibility(visible = uiState.isLoading) {
-            CircularProgressIndicator(modifier = Modifier.size(80.dp).padding(32.dp))
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(200.dp)
+                    .padding(32.dp)
+            )
         }
-        Text(uiState.address, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 32.dp))
 
+        Text(
+            uiState.address,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        )
     }
+
 
 }
 

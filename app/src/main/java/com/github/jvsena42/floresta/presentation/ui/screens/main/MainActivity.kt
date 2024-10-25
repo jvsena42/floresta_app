@@ -3,14 +3,11 @@ package com.github.jvsena42.floresta.presentation.ui.screens.main
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -24,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.github.jvsena42.floresta.presentation.ui.screens.home.ScreenHome
+import com.github.jvsena42.floresta.presentation.ui.screens.receive.ScreenReceive
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
 import com.github.jvsena42.floresta.presentation.ui.theme.Primary
 import org.koin.androidx.compose.KoinAndroidContext
@@ -40,7 +38,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(modifier = Modifier.fillMaxSize(),
                         bottomBar = {
                             NavigationBar(
-                                containerColor = Primary
+//                                containerColor = Primary
                             ) {
                                 Destinations.entries.forEach { destination ->
                                     NavigationBarItem(
@@ -76,6 +74,9 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable(Destinations.HOME.route) {
                                 ScreenHome()
+                            }
+                            composable(Destinations.RECEIVE.route) {
+                                ScreenReceive()
                             }
                         }
                     }

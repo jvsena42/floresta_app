@@ -46,8 +46,8 @@ val presentationModule = module {
             walletManager = get(),
             florestaDaemon = get()
         )
-        ReceiveViewModel(walletManager = get())
     }
+    viewModel { ReceiveViewModel(walletManager = get()) }
 }
 
 val domainModule = module {
