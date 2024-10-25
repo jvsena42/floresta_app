@@ -12,6 +12,7 @@ import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl
 import com.github.jvsena42.floresta.domain.floresta.FlorestaService
 import com.github.jvsena42.floresta.presentation.ui.screens.main.MainViewmodel
 import com.github.jvsena42.floresta.presentation.ui.screens.home.HomeViewModel
+import com.github.jvsena42.floresta.presentation.ui.screens.receive.ReceiveViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -46,6 +47,7 @@ val presentationModule = module {
             florestaDaemon = get()
         )
     }
+    viewModel { ReceiveViewModel(walletManager = get()) }
 }
 
 val domainModule = module {

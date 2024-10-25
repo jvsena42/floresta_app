@@ -27,6 +27,9 @@ class HomeViewModel(
 
     init {
         syncInLoop()
+        if (walletRepository.doesWalletExist()) {
+            Log.d(TAG, "mnemonic: ${walletRepository.getMnemonic().getOrNull()}")
+        }
     }
 
     private suspend fun updateUI() {
