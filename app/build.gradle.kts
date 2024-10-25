@@ -46,6 +46,8 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation("net.java.dev.jna:jna:5.14.0@aar")
+    implementation("com.google.zxing:core:3.4.1")
+    implementation("org.kotlinbitcointools:bip21:0.0.5-SNAPSHOT")
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
