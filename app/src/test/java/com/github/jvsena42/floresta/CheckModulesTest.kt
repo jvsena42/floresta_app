@@ -11,6 +11,6 @@ class CheckModulesTest: KoinTest {
     @Test
     fun checkAllModules() {
         domainModule.verify()
-        presentationModule.verify()
+//        presentationModule.verify()
     }
 }

@@ -3,7 +3,6 @@ package com.github.jvsena42.floresta
 import android.app.Application
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import com.github.jvsena42.floresta.domain.bitcoin.WalletManager
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
@@ -42,7 +41,7 @@ val presentationModule = module {
     viewModel { MainViewmodel() }
     viewModel {
         HomeViewModel(
-            walletRepository = get(),
+            walletRepository = get<WalletRepository>(),
             walletManager = get(),
             florestaDaemon = get()
         )
