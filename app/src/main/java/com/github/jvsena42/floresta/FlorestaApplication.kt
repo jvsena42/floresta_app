@@ -10,7 +10,7 @@ import com.github.jvsena42.floresta.domain.bitcoin.WalletRepositoryImpl
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemon
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl
 import com.github.jvsena42.floresta.domain.floresta.FlorestaService
-import com.github.jvsena42.floresta.presentation.MainViewmodel
+import com.github.jvsena42.floresta.presentation.ui.screens.main.MainViewmodel
 import com.github.jvsena42.floresta.presentation.ui.screens.home.HomeViewModel
 import com.github.jvsena42.floresta.presentation.ui.screens.receive.ReceiveViewModel
 import org.koin.android.ext.koin.androidContext
