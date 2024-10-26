@@ -15,10 +15,14 @@ class NodeViewModel(
     private val _uiState = MutableStateFlow(NodeUiState())
     val uiState = _uiState.asStateFlow()
 
+    init {
+        getInfo()
+    }
+
     private  fun getInfo() {
         viewModelScope.launch(Dispatchers.IO) {
+            florestaRpc.rescan()
 
         }
-
     }
 }

@@ -7,4 +7,10 @@
     <string name="transactions">Transactions</string>
     <string name="received">Received</string>
     <string name="send">Send</string>
+    <string name="node">Node</string>
+    <string name="number_of_peers">Number of peers</string>
+    <string name="block_height">Block Height</string>
+    <string name="block_hash">Block hash</string>
+    <string name="network">Network</string>
+    <string name="difficulty">Difficulty</string>
 </resources>
