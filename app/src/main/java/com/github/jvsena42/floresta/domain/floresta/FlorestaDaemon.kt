@@ -4,10 +4,12 @@ import android.util.Log
 import com.florestad.Config
 import com.florestad.Florestad
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
+import kotlinx.coroutines.delay
 import org.bitcoindevkit.Descriptor
 import org.rustbitcoin.bitcoin.Network
 import com.florestad.Network as FlorestaNetwork
 import kotlin.let
+import kotlin.time.Duration.Companion.seconds
 
 interface FlorestaDaemon {
     suspend fun start()
@@ -15,7 +17,7 @@ interface FlorestaDaemon {
     suspend fun stop()
 }
 
-class FlorestaDaemonImpl (
+class FlorestaDaemonImpl(
     private val datadir: String,
     private val walletRepository: WalletRepository
 ) : FlorestaDaemon {
@@ -49,15 +51,19 @@ class FlorestaDaemonImpl (
                 walletDescriptor = descriptorList.toString()
             )
             daemon = Florestad.fromConfig(config)
-            daemon.start().also { isRunning = true }
+            daemon.start().also {
+                Log.i(TAG, "start: Floresta running with config $config")
+                isRunning = true
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "start error: ",e)
+            Log.e(TAG, "start error: ", e)
         }
     }
 
     override suspend fun restart() {
         if (isRunning) {
             stop()
+            delay(3.seconds)
             start()
         } else {
             start()
@@ -65,6 +71,7 @@ class FlorestaDaemonImpl (
     }
 
     override suspend fun stop() {
+        if (!isRunning) return
         daemon.stop()
         isRunning = false
     }

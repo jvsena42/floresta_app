@@ -2,7 +2,7 @@ package com.github.jvsena42.floresta.domain.bitcoin
 
 import android.content.SharedPreferences
 import android.util.Log
-import com.github.jvsena42.floresta.domain.bitcoin.WalletManager.Companion.PERSISTENCE_VERSION
+import com.github.jvsena42.floresta.domain.model.Constants.PERSISTENCE_VERSION
 import com.github.jvsena42.floresta.domain.model.PreferenceKeys
 import com.github.jvsena42.floresta.domain.model.RequiredInitialWalletData
 
