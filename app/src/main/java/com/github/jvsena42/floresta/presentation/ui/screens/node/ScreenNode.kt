@@ -44,7 +44,11 @@ fun ScreenNode(uiState: NodeUiState) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         CenterAlignedTopAppBar(title = {
-            Text(stringResource(R.string.node), style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
+            Text(
+                stringResource(R.string.node),
+                style = MaterialTheme.typography.titleLarge,
+                textAlign = TextAlign.Center
+            )
         })
 
         Row(
@@ -78,7 +82,12 @@ fun ScreenNode(uiState: NodeUiState) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(end = 16.dp)
             )
-            Text(uiState.blockHash, maxLines = 2, textAlign = TextAlign.End, modifier = Modifier.weight(1f))
+            Text(
+                uiState.blockHash,
+                maxLines = 2,
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(1f)
+            )
         }
         Row(
             modifier = Modifier.fillMaxWidth()

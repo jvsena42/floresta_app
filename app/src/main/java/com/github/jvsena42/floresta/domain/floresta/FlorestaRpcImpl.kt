@@ -1,11 +1,12 @@
 package com.github.jvsena42.floresta.domain.floresta
 
+import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl.Companion.ELECTRUM_ADDRESS
 import org.json.JSONObject
 import org.json.JSONArray
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 
 class FlorestaRpcImpl: FlorestaRpc {
-    lateinit var host: String
+    var host: String = "http://$ELECTRUM_ADDRESS"
 
     override fun rescan() {
         val arguments = JSONArray()

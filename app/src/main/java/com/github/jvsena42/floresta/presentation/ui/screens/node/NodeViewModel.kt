@@ -16,12 +16,12 @@ class NodeViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        getInfo()
+//        getInfo()
     }
 
     private  fun getInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-            florestaRpc.rescan()
+//            florestaRpc.rescan()
 
         }
     }
