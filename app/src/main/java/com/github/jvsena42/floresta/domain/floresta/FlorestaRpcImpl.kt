@@ -1,58 +1,73 @@
 package com.github.jvsena42.floresta.domain.floresta
 
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl.Companion.ELECTRUM_ADDRESS
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import org.json.JSONObject
 import org.json.JSONArray
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 
-class FlorestaRpcImpl: FlorestaRpc {
+class FlorestaRpcImpl : FlorestaRpc {
     var host: String = "http://$ELECTRUM_ADDRESS"
 
-    override fun rescan() {
+    override suspend fun rescan(): Flow<Result<JSONObject>> = callbackFlow {
         val arguments = JSONArray()
         arguments.put(0)
-        sendJsonRpcRequest(
-            host,
-            "rescan",
-            arguments
+
+        send(
+            sendJsonRpcRequest(
+                host,
+                "rescan",
+                arguments
+            )
         )
     }
 
-    override fun getPeerInfo() {
+    override suspend fun getPeerInfo(): Flow<Result<JSONObject>> = callbackFlow {
         val arguments = JSONArray()
 
-        sendJsonRpcRequest(
-            host,
-            "getpeerinfo",
-            arguments
+        send(
+            sendJsonRpcRequest(
+                host,
+                "getpeerinfo",
+                arguments
+            )
         )
     }
 
-    override fun getProgress() {
+    override suspend fun getProgress(): Flow<Result<JSONObject>> {
         TODO("Not yet implemented")
     }
 
-    override fun stop() {
+    override suspend fun stop(): Flow<Result<JSONObject>> = callbackFlow {
         val arguments = JSONArray()
 
-        sendJsonRpcRequest(
-            host,
-            "stop",
-            arguments
+        send(
+            sendJsonRpcRequest(
+                host,
+                "stop",
+                arguments
+            )
         )
     }
 
-    override fun getBlockchainInfo() {
+    override suspend fun getBlockchainInfo(): Flow<Result<JSONObject>> = callbackFlow {
         val arguments = JSONArray()
 
-        sendJsonRpcRequest(
-            host,
-            "getblockchaininfo",
-            arguments
+        send(
+            sendJsonRpcRequest(
+                host,
+                "getblockchaininfo",
+                arguments
+            )
         )
     }
 
-    fun sendJsonRpcRequest(endpoint: String, method: String, params: JSONArray): JSONObject {
+    suspend fun sendJsonRpcRequest(
+        endpoint: String,
+        method: String,
+        params: JSONArray
+    ): Result<JSONObject> {
         val client = okhttp3.OkHttpClient()
 
         val jsonRpcRequest = JSONObject().apply {
@@ -63,7 +78,8 @@ class FlorestaRpcImpl: FlorestaRpc {
         }.toString()
 
         val requestBody = okhttp3.RequestBody.create(
-                "application/json".toMediaTypeOrNull(), jsonRpcRequest);
+            "application/json".toMediaTypeOrNull(), jsonRpcRequest
+        )
 
         val request = okhttp3.Request.Builder()
             .url(endpoint)
@@ -73,7 +89,11 @@ class FlorestaRpcImpl: FlorestaRpc {
         val response = client.newCall(request).execute()
 
         val body = response.body
-        return JSONObject(body.toString())
+        return try {
+            Result.success(JSONObject(body.toString()))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
 }
