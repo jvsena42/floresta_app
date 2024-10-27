@@ -26,9 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.jvsena42.floresta.R
-import com.github.jvsena42.floresta.presentation.ui.theme.Danger
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
-import com.github.jvsena42.floresta.presentation.ui.theme.Primary
 
 @Composable
 fun TransactionItem(
@@ -38,7 +36,7 @@ fun TransactionItem(
     isReceived: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val color = if (isReceived) Primary else Danger
+    val color = if (isReceived) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error
 
     Column(
         modifier = modifier

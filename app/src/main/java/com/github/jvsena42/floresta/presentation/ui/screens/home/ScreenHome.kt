@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import com.github.jvsena42.floresta.R
 import com.github.jvsena42.floresta.presentation.ui.screens.home.components.TransactionItem
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
-import com.github.jvsena42.floresta.presentation.ui.theme.Primary
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -54,12 +53,12 @@ private fun ScreenHome(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Primary),
+                .background(MaterialTheme.colorScheme.tertiaryContainer),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
                 ),
                 title = {
 
@@ -129,7 +128,7 @@ private fun ScreenHome(
                     .fillMaxWidth()
                     .weight(1f)
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.background,
                         shape = CircleShape.copy(
                             bottomEnd = CornerSize(0.dp),
                             bottomStart = CornerSize(0.dp),
