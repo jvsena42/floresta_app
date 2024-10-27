@@ -1,16 +1,17 @@
 package com.github.jvsena42.floresta.domain.floresta
 
-import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl.Companion.ELECTRUM_ADDRESS
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import org.json.JSONObject
-import org.json.JSONArray
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import org.json.JSONArray
+import org.json.JSONObject
 
 class FlorestaRpcImpl : FlorestaRpc {
     var host: String = "http://$ELECTRUM_ADDRESS"
 
     override suspend fun rescan(): Flow<Result<JSONObject>> = callbackFlow {
+        Log.d(TAG, "rescan: ")
         val arguments = JSONArray()
         arguments.put(0)
 
@@ -24,6 +25,7 @@ class FlorestaRpcImpl : FlorestaRpc {
     }
 
     override suspend fun getPeerInfo(): Flow<Result<JSONObject>> = callbackFlow {
+        Log.d(TAG, "getPeerInfo: ")
         val arguments = JSONArray()
 
         send(
@@ -40,6 +42,7 @@ class FlorestaRpcImpl : FlorestaRpc {
     }
 
     override suspend fun stop(): Flow<Result<JSONObject>> = callbackFlow {
+        Log.d(TAG, "stop: ")
         val arguments = JSONArray()
 
         send(
@@ -52,6 +55,7 @@ class FlorestaRpcImpl : FlorestaRpc {
     }
 
     override suspend fun getBlockchainInfo(): Flow<Result<JSONObject>> = callbackFlow {
+        Log.d(TAG, "getBlockchainInfo: ")
         val arguments = JSONArray()
 
         send(
@@ -68,32 +72,39 @@ class FlorestaRpcImpl : FlorestaRpc {
         method: String,
         params: JSONArray
     ): Result<JSONObject> {
-        val client = okhttp3.OkHttpClient()
-
-        val jsonRpcRequest = JSONObject().apply {
-            put("jsonrpc", "2.0")
-            put("method", method)
-            put("params", params)
-            put("id", 1)
-        }.toString()
-
-        val requestBody = okhttp3.RequestBody.create(
-            "application/json".toMediaTypeOrNull(), jsonRpcRequest
-        )
-
-        val request = okhttp3.Request.Builder()
-            .url(endpoint)
-            .post(requestBody)
-            .build()
-
-        val response = client.newCall(request).execute()
-
-        val body = response.body
+        Log.d(TAG, "sendJsonRpcRequest: ")
         return try {
+            val client = okhttp3.OkHttpClient()
+
+            val jsonRpcRequest = JSONObject().apply {
+                put("jsonrpc", "2.0")
+                put("method", method)
+                put("params", params)
+                put("id", 1)
+            }.toString()
+
+            val requestBody = okhttp3.RequestBody.create(
+                "application/json".toMediaTypeOrNull(), jsonRpcRequest
+            )
+
+            val request = okhttp3.Request.Builder()
+                .url(endpoint)
+                .post(requestBody)
+                .build()
+
+            val response = client.newCall(request).execute()
+
+            val body = response.body
             Result.success(JSONObject(body.toString()))
         } catch (e: Exception) {
+            Log.e(TAG, "sendJsonRpcRequest error:", e)
             Result.failure(e)
         }
+    }
+
+    private companion object {
+        private const val TAG = "FlorestaRpcImpl"
+        private const val ELECTRUM_ADDRESS = "127.0.0.1:50001"
     }
 
 }

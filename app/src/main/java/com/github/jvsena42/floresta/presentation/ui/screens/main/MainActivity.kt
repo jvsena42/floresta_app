@@ -25,13 +25,16 @@ import com.github.jvsena42.floresta.presentation.ui.screens.node.ScreenNode
 import com.github.jvsena42.floresta.presentation.ui.screens.receive.ScreenReceive
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
 import org.koin.androidx.compose.KoinAndroidContext
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             var navigationSelectedItem by remember { mutableStateOf(Destinations.HOME) }
             val navController = rememberNavController()
+            val mainViewmodel: MainViewmodel = koinViewModel()
 
             FlorestaTheme {
                 KoinAndroidContext {

@@ -36,7 +36,7 @@ class FlorestaDaemonImpl(
                     Descriptor(
                         descriptor = it.descriptor,
                         Network.SIGNET
-                    ).toStringWithSecret()
+                    ).toString()
                 )
             }
             Log.d(TAG, "start: descriptor list: $descriptorList")

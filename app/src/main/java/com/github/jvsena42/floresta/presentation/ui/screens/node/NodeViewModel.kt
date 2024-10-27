@@ -6,6 +6,7 @@ import com.github.jvsena42.floresta.domain.floresta.FlorestaRpc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 
 class NodeViewModel(
@@ -21,8 +22,8 @@ class NodeViewModel(
 
     private  fun getInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-//            florestaRpc.rescan()
-
+//            florestaRpc.rescan().last()
+//            florestaRpc.getBlockchainInfo().last()
         }
     }
 }
