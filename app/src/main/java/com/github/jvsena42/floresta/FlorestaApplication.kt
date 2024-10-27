@@ -9,13 +9,14 @@ import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepositoryImpl
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemon
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl
-import com.github.jvsena42.floresta.domain.floresta.FlorestaRpc
+import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.floresta.FlorestaRpcImpl
 import com.github.jvsena42.floresta.domain.floresta.FlorestaService
 import com.github.jvsena42.floresta.presentation.ui.screens.home.HomeViewModel
 import com.github.jvsena42.floresta.presentation.ui.screens.main.MainViewmodel
 import com.github.jvsena42.floresta.presentation.ui.screens.node.NodeViewModel
 import com.github.jvsena42.floresta.presentation.ui.screens.receive.ReceiveViewModel
+import com.google.gson.Gson
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -75,5 +76,6 @@ val domainModule = module {
             walletRepository = get()
         )
     }
-    single<FlorestaRpc> { FlorestaRpcImpl() }
+    single<FlorestaRpc> { FlorestaRpcImpl(gson = Gson()) }
+    factory<Gson> { Gson() }
 }

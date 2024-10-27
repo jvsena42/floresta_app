@@ -1,13 +1,18 @@
 package com.github.jvsena42.floresta.domain.floresta
 
 import android.util.Log
+import com.github.jvsena42.floresta.data.FlorestaRpc
+import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 
-class FlorestaRpcImpl : FlorestaRpc {
+class FlorestaRpcImpl(
+    private val gson: Gson,
+) : FlorestaRpc {
     var host: String = "http://$ELECTRUM_ADDRESS"
 
     override suspend fun rescan(): Flow<Result<JSONObject>> = flow {
@@ -54,23 +59,29 @@ class FlorestaRpcImpl : FlorestaRpc {
         )
     }
 
-    override suspend fun getBlockchainInfo(): Flow<Result<JSONObject>> = flow {
+    override suspend fun getBlockchainInfo(): Flow<Result<GetBlockchainInfoResponse>> = flow {
         Log.d(TAG, "getBlockchainInfo: ")
         val arguments = JSONArray()
 
-        emit(
-            sendJsonRpcRequest(
-                host,
-                "getblockchaininfo",
-                arguments
-            )
+        sendJsonRpcRequest(
+            host,
+            "getblockchaininfo",
+            arguments
+        ).fold(
+            onSuccess = { json ->
+                emit(Result.success(gson.fromJson(json.toString(),
+                    GetBlockchainInfoResponse::class.java) ))
+            },
+            onFailure = { e ->
+                emit(Result.failure(e))
+            }
         )
     }
 
     suspend fun sendJsonRpcRequest(
         endpoint: String,
         method: String,
-        params: JSONArray
+        params: JSONArray,
     ): Result<JSONObject> {
         Log.d(TAG, "sendJsonRpcRequest: ")
         return try {
