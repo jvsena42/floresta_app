@@ -14,5 +14,7 @@
     <string name="network">Network</string>
     <string name="difficulty">Difficulty</string>
     <string name="minutes">minutes</string>
-    <string name="best_block">Best block</string>
+    <string name="best_block">Best Block</string>
+    <string name="average_block_time">Average block time</string>
+    <string name="sync">Sync</string>
 </resources>

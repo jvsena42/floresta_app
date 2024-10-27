@@ -9,4 +9,5 @@ data class NodeUiState(
     val blockHash: String = "",
     val network: String = "",
     val difficulty: String = "",
+    val syncPercentage: Int = 0,
 )

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
 class NodeViewModel(
@@ -41,7 +42,8 @@ class NodeViewModel(
                         blockHeight = data.result.height.toString(),
                         difficulty = data.result.difficulty.toString(),
                         network = data.result.chain.uppercase(),
-                        blockHash = data.result.bestBlock
+                        blockHash = data.result.bestBlock,
+                        syncPercentage = data.result.progress.roundToInt()
                     ) }
                 }
             }
