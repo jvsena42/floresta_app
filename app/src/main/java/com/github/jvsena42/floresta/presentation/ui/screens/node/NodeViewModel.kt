@@ -34,10 +34,9 @@ class NodeViewModel(
 
     private fun getInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-            florestaRpc.rescan().first()
             florestaRpc.getBlockchainInfo().collect { result ->
                 result.onSuccess { data ->
-                    Log.d(TAG, "getInfo: $data")
+                    Log.d(TAG, "getBlockchainInfo: $data")
                     _uiState.update { it.copy(
                         blockHeight = data.result.height.toString(),
                         difficulty = data.result.difficulty.toString(),

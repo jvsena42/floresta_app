@@ -13,4 +13,5 @@
     <string name="block_hash">Block hash</string>
     <string name="network">Network</string>
     <string name="difficulty">Difficulty</string>
+    <string name="minutes">minutes</string>
 </resources>

@@ -111,7 +111,7 @@ fun ScreenNode(uiState: NodeUiState) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
             )
-            Text(uiState.numberOfPeers)
+            Text("""${uiState.difficulty} ${stringResource(R.string.minutes)}""")
         }
     }
 }

@@ -9,7 +9,7 @@ data class Result(
     @SerializedName("chain")
     val chain: String,
     @SerializedName("difficulty")
-    val difficulty: Int,
+    val difficulty: Float,
     @SerializedName("height")
     val height: Int,
     @SerializedName("ibd")
@@ -21,7 +21,7 @@ data class Result(
     @SerializedName("leaf_count")
     val leafCount: Int,
     @SerializedName("progress")
-    val progress: Double,
+    val progress: Float,
     @SerializedName("root_count")
     val rootCount: Int,
     @SerializedName("root_hashes")
