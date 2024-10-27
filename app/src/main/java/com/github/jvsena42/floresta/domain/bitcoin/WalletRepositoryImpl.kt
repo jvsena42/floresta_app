@@ -9,6 +9,7 @@ import com.github.jvsena42.floresta.domain.model.RequiredInitialWalletData
 class WalletRepositoryImpl(
     private val sharedPreferences: SharedPreferences,
 ) : WalletRepository {
+
     override fun doesWalletExist(): Boolean {
         val isWalletInitialized = sharedPreferences.getBoolean(
             "${PreferenceKeys.IS_WALLET_INITIALIZED}$PERSISTENCE_VERSION",

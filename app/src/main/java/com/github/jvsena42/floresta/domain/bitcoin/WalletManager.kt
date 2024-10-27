@@ -108,6 +108,8 @@ class WalletManager(
                 connection = dbConnection
             )
 
+            Log.d(TAG, "loadWallet: in network ${wallet.network()}")
+
             return Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "loadWallet: ", e)
@@ -166,7 +168,7 @@ class WalletManager(
             val syncRequest = wallet.startSyncWithRevealedSpks().build()
             val update = blockchainClient.sync(
                 syncRequest = syncRequest,
-                batchSize = 10u,
+                batchSize = 100u,
                 fetchPrevTxouts = true
             )
             wallet.applyUpdate(update)

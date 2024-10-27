@@ -29,13 +29,13 @@ class HomeViewModel(
         syncInLoop()
         if (walletRepository.doesWalletExist()) {
             Log.d(TAG, "mnemonic: ${walletRepository.getMnemonic().getOrNull()}")
+            walletManager.loadWallet()
         }
     }
 
     private suspend fun updateUI() {
         if (walletRepository.doesWalletExist()) {
             Log.d(TAG, "setup: Wallet exists")
-            walletManager.loadWallet()
             val balanceSats = walletManager.getBalance()
             _uiState.update {
                 it.copy(
@@ -47,7 +47,6 @@ class HomeViewModel(
             Log.d(TAG, "setup: Wallet does not exists")
             walletManager.createWallet()
             florestaDaemon.restart()
-            walletManager.loadWallet()
         }
     }
 
