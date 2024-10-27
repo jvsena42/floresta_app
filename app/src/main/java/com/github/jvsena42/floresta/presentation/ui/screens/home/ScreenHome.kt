@@ -128,7 +128,7 @@ private fun ScreenHome(
                     .fillMaxWidth()
                     .weight(1f)
                     .background(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.background,
                         shape = CircleShape.copy(
                             bottomEnd = CornerSize(0.dp),
                             bottomStart = CornerSize(0.dp),
