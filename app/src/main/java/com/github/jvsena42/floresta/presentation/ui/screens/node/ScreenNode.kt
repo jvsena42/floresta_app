@@ -7,7 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,12 +16,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -100,21 +96,27 @@ fun ScreenNode(uiState: NodeUiState) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     AnimatedVisibility(visible = uiState.numberOfPeers.isNotEmpty()) {
                         Text(uiState.numberOfPeers)
                     }
+
                     AnimatedVisibility(visible = uiState.numberOfPeers.isEmpty()) {
                         LinearProgressIndicator(modifier = Modifier.padding(horizontal = 32.dp))
                     }
+
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
+
             item {
                 Column(
                     modifier = cardsModifier,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+
                     Text(
                         stringResource(R.string.block_height),
                         style = MaterialTheme.typography.titleMedium,
@@ -122,7 +124,9 @@ fun ScreenNode(uiState: NodeUiState) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     AnimatedContent(
                         targetState = uiState.blockHeight,
                         label = stringResource(R.string.best_block)
@@ -132,14 +136,17 @@ fun ScreenNode(uiState: NodeUiState) {
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
+
             item {
                 Column(
                     modifier = cardsModifier,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+
                     Text(
                         stringResource(R.string.best_block),
                         style = MaterialTheme.typography.titleMedium,
@@ -147,7 +154,9 @@ fun ScreenNode(uiState: NodeUiState) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     AnimatedContent(
                         targetState = uiState.blockHash,
                         label = stringResource(R.string.best_block)
@@ -157,14 +166,17 @@ fun ScreenNode(uiState: NodeUiState) {
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
+
             item {
                 Column(
                     modifier = cardsModifier,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+
                     Text(
                         stringResource(R.string.network),
                         style = MaterialTheme.typography.titleMedium,
@@ -172,11 +184,15 @@ fun ScreenNode(uiState: NodeUiState) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     Text(uiState.network)
+
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
+
             item {
                 Column(
                     modifier = cardsModifier,
@@ -189,9 +205,13 @@ fun ScreenNode(uiState: NodeUiState) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     Text("""~ ${uiState.difficulty} ${stringResource(R.string.minutes)}""")
+
                     Text(stringResource(R.string.average_block_time))
+
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
