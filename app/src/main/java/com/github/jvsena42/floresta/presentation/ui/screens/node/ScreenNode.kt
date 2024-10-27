@@ -215,6 +215,26 @@ fun ScreenNode(uiState: NodeUiState) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
+            item {
+                Column(
+                    modifier = cardsModifier,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        stringResource(R.string.sync),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    Text(if (uiState.syncPercentage < 100) "Syncing... ${uiState.syncPercentage}%" else "${uiState.syncPercentage}%")
+
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
         }
     }
 }
