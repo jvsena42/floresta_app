@@ -1,5 +1,6 @@
 package com.github.jvsena42.floresta.presentation.ui.screens.node
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -122,7 +123,15 @@ fun ScreenNode(uiState: NodeUiState) {
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(uiState.blockHeight)
+                    AnimatedContent(
+                        targetState = uiState.blockHeight,
+                        label = stringResource(R.string.best_block)
+                    ) { animated ->
+                        Text(
+                            animated,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
@@ -139,10 +148,15 @@ fun ScreenNode(uiState: NodeUiState) {
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        uiState.blockHash,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    AnimatedContent(
+                        targetState = uiState.blockHash,
+                        label = stringResource(R.string.best_block)
+                    ) { animated ->
+                        Text(
+                            animated,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
