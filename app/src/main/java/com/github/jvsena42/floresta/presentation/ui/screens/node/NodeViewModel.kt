@@ -3,14 +3,14 @@ package com.github.jvsena42.floresta.presentation.ui.screens.node
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.jvsena42.floresta.domain.floresta.FlorestaRpcKtor
+import com.github.jvsena42.floresta.domain.floresta.FlorestaRpc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NodeViewModel(
-    private val florestaRpc: FlorestaRpcKtor
+    private val florestaRpc: FlorestaRpc
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(NodeUiState())
@@ -22,10 +22,10 @@ class NodeViewModel(
 
     private  fun getInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-            florestaRpc.getBlockchainInfo()
-            florestaRpc.response.collect { response ->
-                Log.d(TAG, "getInfo response: $response")
+            florestaRpc.getBlockchainInfo().collect { data ->
+                Log.d(TAG, "getInfo: $data")
             }
+
         }
     }
 

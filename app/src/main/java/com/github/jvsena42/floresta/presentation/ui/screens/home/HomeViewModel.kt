@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 class HomeViewModel(
     private val walletRepository: WalletRepository,
     private val walletManager: WalletManager,
-    private val florestaDaemon: FlorestaDaemon
+    private val florestaDaemon: FlorestaDaemon,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUIState())
