@@ -11,9 +11,11 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,12 +47,19 @@ class MainActivity : ComponentActivity() {
 
             FlorestaTheme {
                 KoinAndroidContext {
-                    Scaffold(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                    Scaffold(modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
                         bottomBar = {
                             NavigationBar(
+                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.contentColorFor(
+                                    MaterialTheme.colorScheme.tertiaryContainer
+                                ),
                                 modifier = Modifier.clip(
                                     shape = CircleShape.copy(
-                                        bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp),
+                                        bottomStart = CornerSize(0.dp),
+                                        bottomEnd = CornerSize(0.dp),
                                     )
                                 )
                             ) {
@@ -68,12 +77,16 @@ class MainActivity : ComponentActivity() {
                                             }
                                         },
                                         label = {
-                                            Text(destination.label)
+                                            Text(
+                                                destination.label,
+                                                color = MaterialTheme.colorScheme.onTertiaryContainer
+                                            )
                                         },
                                         icon = {
                                             Icon(
                                                 painter = painterResource(destination.icon),
-                                                contentDescription = destination.label
+                                                contentDescription = destination.label,
+                                                tint = MaterialTheme.colorScheme.onTertiaryContainer
                                             )
                                         }
                                     )
