@@ -63,24 +63,13 @@ private fun ScreenHome(
                 title = {
 
                 },
-                navigationIcon = {
+                actions = {
                     IconButton(
                         onClick = {}
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_refresh),
                             contentDescription = stringResource(R.string.refresh),
-                            tint = Color.White
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_add),
-                            contentDescription = stringResource(R.string.new_wallet),
                             tint = Color.White
                         )
                     }
