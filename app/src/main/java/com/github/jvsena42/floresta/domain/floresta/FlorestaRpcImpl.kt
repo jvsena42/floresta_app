@@ -3,6 +3,7 @@ package com.github.jvsena42.floresta.domain.floresta
 import android.util.Log
 import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
+import com.github.jvsena42.floresta.domain.model.florestaRPC.GetPeerInfoResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -30,16 +31,26 @@ class FlorestaRpcImpl(
         )
     }
 
-    override suspend fun getPeerInfo(): Flow<Result<JSONObject>> = flow {
+    override suspend fun getPeerInfo(): Flow<Result<GetPeerInfoResponse>> = flow {
         Log.d(TAG, "getPeerInfo: ")
         val arguments = JSONArray()
 
-        emit(
-            sendJsonRpcRequest(
-                host,
-                "getpeerinfo",
-                arguments
-            )
+        sendJsonRpcRequest(
+            host,
+            "getpeerinfo",
+            arguments
+        ).fold(
+            onSuccess = { json ->
+                emit(
+                    Result.success(
+                        gson.fromJson(json.toString(), GetPeerInfoResponse::class.java)
+                    )
+                )
+            },
+            onFailure = { e ->
+                Log.d(TAG, "getPeerInfo: failure")
+                emit(Result.failure(e))
+            }
         )
     }
 
@@ -70,8 +81,14 @@ class FlorestaRpcImpl(
             arguments
         ).fold(
             onSuccess = { json ->
-                emit(Result.success(gson.fromJson(json.toString(),
-                    GetBlockchainInfoResponse::class.java) ))
+                emit(
+                    Result.success(
+                        gson.fromJson(
+                            json.toString(),
+                            GetBlockchainInfoResponse::class.java
+                        )
+                    )
+                )
             },
             onFailure = { e ->
                 emit(Result.failure(e))

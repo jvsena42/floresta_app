@@ -1,6 +1,7 @@
 package com.github.jvsena42.floresta.data
 
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
+import com.github.jvsena42.floresta.domain.model.florestaRPC.GetPeerInfoResponse
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 
@@ -9,5 +10,5 @@ interface FlorestaRpc {
     suspend fun rescan(): Flow<Result<JSONObject>>
     suspend fun getProgress(): Flow<Result<JSONObject>>
     suspend fun stop(): Flow<Result<JSONObject>>
-    suspend fun getPeerInfo(): Flow<Result<JSONObject>>
+    suspend fun getPeerInfo(): Flow<Result<GetPeerInfoResponse>>
 }

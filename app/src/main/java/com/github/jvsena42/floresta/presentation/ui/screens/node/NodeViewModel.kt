@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class NodeViewModel(
     private val florestaRpc: FlorestaRpc
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(NodeUiState())
     val uiState = _uiState.asStateFlow()
@@ -38,17 +38,29 @@ class NodeViewModel(
             florestaRpc.getBlockchainInfo().collect { result ->
                 result.onSuccess { data ->
                     Log.d(TAG, "getBlockchainInfo: $data")
-                    _uiState.update { it.copy(
-                        blockHeight = data.result.height.toString(),
-                        difficulty = data.result.difficulty.toString(),
-                        network = data.result.chain.uppercase(),
-                        blockHash = data.result.bestBlock,
-                        syncPercentage = data.result.progress.roundToInt()
-                    ) }
+                    _uiState.update {
+                        it.copy(
+                            blockHeight = data.result.height.toString(),
+                            difficulty = data.result.difficulty.toString(),
+                            network = data.result.chain.uppercase(),
+                            blockHash = data.result.bestBlock,
+                            syncPercentage = data.result.progress.roundToInt()
+                        )
+                    }
                 }
             }
             florestaRpc.getPeerInfo().collect { result ->
                 Log.d(TAG, "getPeerInfo: ${result.getOrNull()}")
+                result.onSuccess { data ->
+                    val size = data.result.orEmpty().size
+                    if (size > 0) [
+                        _uiState.update {
+                            it.copy(
+                                numberOfPeers = size.toString()
+                            )
+                        }
+                    ]
+                }
             }
         }
     }
