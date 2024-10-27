@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -94,9 +95,7 @@ class FlorestaRpcImpl(
                 put("id", 1)
             }.toString()
 
-            val requestBody = okhttp3.RequestBody.create(
-                "application/json".toMediaTypeOrNull(), jsonRpcRequest
-            )
+            val requestBody = jsonRpcRequest.toRequestBody("application/json".toMediaTypeOrNull())
 
             val request = okhttp3.Request.Builder()
                 .url(endpoint)
