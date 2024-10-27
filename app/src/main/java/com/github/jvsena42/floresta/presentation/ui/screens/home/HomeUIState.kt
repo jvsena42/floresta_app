@@ -6,5 +6,6 @@ import androidx.compose.runtime.Stable
 data class HomeUIState(
     val balanceBTC: String = "",
     val balanceSats: String = "",
-    val transactions: List<TransactionVM> = listOf()
+    val transactions: List<TransactionVM> = listOf(),
+    val isRefreshEnabled: Boolean = true
 )

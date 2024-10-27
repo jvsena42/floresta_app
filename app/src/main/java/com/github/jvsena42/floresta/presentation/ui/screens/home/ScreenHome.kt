@@ -17,6 +17,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -41,13 +43,14 @@ fun ScreenHome(
     viewmodel: HomeViewModel = koinViewModel()
 ) {
     val uiState: HomeUIState by viewmodel.uiState.collectAsState()
-    ScreenHome(uiState)
+    ScreenHome(uiState, viewmodel::onAction)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScreenHome(
-    uiState: HomeUIState
+    uiState: HomeUIState,
+    onAction: (HomeViewModel.HomeActions) -> Unit
 ) {
     FlorestaTheme {
         Column(
@@ -60,17 +63,17 @@ private fun ScreenHome(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer
                 ),
-                title = {
-
-                },
+                title = { },
                 actions = {
                     IconButton(
-                        onClick = {}
+                        onClick = { onAction(HomeViewModel.HomeActions.OnClickRefresh) },
+                        colors = IconButtonDefaults.iconButtonColors().copy(
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_refresh),
                             contentDescription = stringResource(R.string.refresh),
-                            tint = Color.White
                         )
                     }
                 }
@@ -84,13 +87,13 @@ private fun ScreenHome(
                 Text(
                     text = uiState.balanceBTC,
                     style = MaterialTheme.typography.headlineLarge,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
                 Text(
                     text = stringResource(R.string.btc),
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
             }
 
@@ -100,13 +103,13 @@ private fun ScreenHome(
                 Text(
                     text = uiState.balanceSats,
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
                 Text(
                     text = stringResource(R.string.sats),
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
                 )
             }
 
@@ -132,7 +135,7 @@ private fun ScreenHome(
                     text = stringResource(R.string.transactions),
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.padding(horizontal = 8.dp),
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -198,6 +201,6 @@ private fun Preview() {
                 ),
             )
         )
-    )
+    ) {}
 }
 

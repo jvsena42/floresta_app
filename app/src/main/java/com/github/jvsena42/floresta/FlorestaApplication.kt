@@ -48,7 +48,8 @@ val presentationModule = module {
         HomeViewModel(
             walletRepository = get<WalletRepository>(),
             walletManager = get(),
-            florestaDaemon = get()
+            florestaDaemon = get(),
+            florestaRpc = get()
         )
     }
     viewModel { ReceiveViewModel(walletManager = get()) }

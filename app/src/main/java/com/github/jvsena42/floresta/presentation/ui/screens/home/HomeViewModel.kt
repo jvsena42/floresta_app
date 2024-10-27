@@ -3,6 +3,7 @@ package com.github.jvsena42.floresta.presentation.ui.screens.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.bitcoin.WalletManager
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemon
@@ -20,6 +21,7 @@ class HomeViewModel(
     private val walletRepository: WalletRepository,
     private val walletManager: WalletManager,
     private val florestaDaemon: FlorestaDaemon,
+    private val florestaRpc: FlorestaRpc
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUIState())
@@ -31,6 +33,19 @@ class HomeViewModel(
             Log.d(TAG, "mnemonic: ${walletRepository.getMnemonic().getOrNull()}")
             walletManager.loadWallet()
         }
+    }
+
+    fun onAction(action: HomeActions) {
+        when (action) {
+            HomeActions.OnClickRefresh -> handleRefresh()
+        }
+    }
+
+    private fun handleRefresh() = viewModelScope.launch(Dispatchers.IO) {
+        _uiState.update { it.copy(isRefreshEnabled = false) }
+        florestaRpc.rescan()
+        delay(10.seconds)
+        _uiState.update { it.copy(isRefreshEnabled = true) }
     }
 
     private suspend fun updateUI() {
@@ -58,6 +73,10 @@ class HomeViewModel(
             delay(5.seconds)
             syncInLoop()
         }
+    }
+
+    sealed interface HomeActions {
+        data object OnClickRefresh : HomeActions
     }
 
     companion object {
