@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.jvsena42.floresta.R
@@ -54,7 +55,7 @@ private val cardsModifier = Modifier
         color = Color.Gray,
         shape = CircleShape.copy(CornerSize(24.dp))
     )
-    .padding(horizontal = 26.dp, vertical = 14.dp)
+    .padding(horizontal = 12.dp, vertical = 14.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +65,7 @@ fun ScreenNode(uiState: NodeUiState) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         CenterAlignedTopAppBar(
             title = {
@@ -79,9 +80,9 @@ fun ScreenNode(uiState: NodeUiState) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(18.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-            horizontalArrangement = Arrangement.spacedBy(18.dp)
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
                 Column(
@@ -132,6 +133,7 @@ fun ScreenNode(uiState: NodeUiState) {
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         uiState.blockHash,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -182,7 +184,7 @@ private fun Preview() {
             NodeUiState(
                 numberOfPeers = "5",
                 blockHeight = "1235334",
-                blockHash = "00000000000000002d342634efg588252ssq123332sdt6637387d",
+                blockHash = "00000cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
                 network = "Signet",
                 difficulty = "9.7"
             )
