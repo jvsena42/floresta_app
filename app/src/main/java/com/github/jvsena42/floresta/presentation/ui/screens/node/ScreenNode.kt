@@ -1,5 +1,6 @@
 package com.github.jvsena42.floresta.presentation.ui.screens.node
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
@@ -72,7 +74,8 @@ fun ScreenNode(uiState: NodeUiState) {
                 Text(
                     stringResource(R.string.node),
                     style = MaterialTheme.typography.titleLarge,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Black
                 )
             }
         )
@@ -97,7 +100,12 @@ fun ScreenNode(uiState: NodeUiState) {
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    Text(uiState.numberOfPeers)
+                    AnimatedVisibility(visible = uiState.numberOfPeers.isNotEmpty()) {
+                        Text(uiState.numberOfPeers)
+                    }
+                    AnimatedVisibility(visible = uiState.numberOfPeers.isEmpty()) {
+                        LinearProgressIndicator(modifier = Modifier.padding(horizontal = 32.dp))
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
@@ -168,7 +176,8 @@ fun ScreenNode(uiState: NodeUiState) {
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    Text("""${uiState.difficulty} ${stringResource(R.string.minutes)}""")
+                    Text("""~ ${uiState.difficulty} ${stringResource(R.string.minutes)}""")
+                    Text(stringResource(R.string.average_block_time))
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
