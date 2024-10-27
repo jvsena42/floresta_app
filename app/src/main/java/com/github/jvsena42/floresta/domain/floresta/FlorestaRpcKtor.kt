@@ -104,17 +104,17 @@ class FlorestaRpcKtor {
     }
 
     private suspend fun sendMessage(message: String) {
-        Log.d(TAG, "Sending message: $message")
         if ((socket == null) || (sendChannel == null)) {
             delay(0.5.seconds)
         }
-
+        Log.d(TAG, "Sending message: $message")
         try {
             if (sendChannel == null) {
                 Log.e(TAG, "Socket is not connected.")
                 throw IllegalStateException("Socket is not connected.")
             }
             sendChannel!!.writeStringUtf8(message)
+            Log.d(TAG, "sendMessage: message sent successfully")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to send message: ", e)
             Log.d(TAG, "sendMessage: Attempt to restart the socket connection")
