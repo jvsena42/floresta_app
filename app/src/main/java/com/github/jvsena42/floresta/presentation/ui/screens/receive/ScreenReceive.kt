@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -25,9 +27,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.jvsena42.floresta.R
 import com.github.jvsena42.floresta.presentation.ui.theme.FlorestaTheme
 import kotlinx.coroutines.launch
 
@@ -39,6 +45,7 @@ fun ScreenReceive(
     ScreenReceive(uiState)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScreenReceive(uiState: ReceiveUIState) {
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
@@ -46,6 +53,18 @@ private fun ScreenReceive(uiState: ReceiveUIState) {
     val snackBarHostState = remember { SnackbarHostState() }
 
     Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        stringResource(R.string.receive_bitcoin),
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+            )
+        },
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
         },
