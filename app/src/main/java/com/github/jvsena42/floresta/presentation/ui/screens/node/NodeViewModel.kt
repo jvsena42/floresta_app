@@ -7,6 +7,7 @@ import com.github.jvsena42.floresta.data.FlorestaRpc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class NodeViewModel(
@@ -25,6 +26,11 @@ class NodeViewModel(
             florestaRpc.getBlockchainInfo().collect { result ->
                 result.onSuccess { data ->
                     Log.d(TAG, "getInfo: $data")
+                    _uiState.update { it.copy(
+                        blockHeight = data.result.height.toString(),
+                        difficulty = data.result.difficulty.toString(),
+                        network = data.result.chain
+                    ) }
                 }
             }
 
