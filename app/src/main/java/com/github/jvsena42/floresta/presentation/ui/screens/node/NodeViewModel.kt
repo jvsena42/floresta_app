@@ -40,7 +40,8 @@ class NodeViewModel(
                     _uiState.update { it.copy(
                         blockHeight = data.result.height.toString(),
                         difficulty = data.result.difficulty.toString(),
-                        network = data.result.chain
+                        network = data.result.chain.uppercase(),
+                        blockHash = data.result.bestBlock
                     ) }
                 }
             }

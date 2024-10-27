@@ -14,4 +14,5 @@
     <string name="network">Network</string>
     <string name="difficulty">Difficulty</string>
     <string name="minutes">minutes</string>
+    <string name="best_block">Best block</string>
 </resources>
