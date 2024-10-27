@@ -3,7 +3,7 @@
 
 @file:Suppress("NAME_SHADOWING")
 
-package com.florestad
+package uniffi.floresta;
 
 // Common helper code.
 //
@@ -46,16 +46,24 @@ open class RustBuffer : Structure() {
     class ByReference: RustBuffer(), Structure.ByReference
 
     companion object {
-        internal fun alloc(size: Int = 0) = rustCall() { status ->
-            _UniFFILib.INSTANCE.ffi_florestad_ffi_rustbuffer_alloc(size, status)
+        internal fun alloc(size: Int = 0) = uniffiRustCall() { status ->
+            UniffiLib.INSTANCE.ffi_florestad_ffi_rustbuffer_alloc(size, status)
         }.also {
             if(it.data == null) {
                throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
            }
         }
 
-        internal fun free(buf: RustBuffer.ByValue) = rustCall() { status ->
-            _UniFFILib.INSTANCE.ffi_florestad_ffi_rustbuffer_free(buf, status)
+        internal fun create(capacity: Int, len: Int, data: Pointer?): RustBuffer.ByValue {
+            var buf = RustBuffer.ByValue()
+            buf.capacity = capacity
+            buf.len = len
+            buf.data = data
+            return buf
+        }
+
+        internal fun free(buf: RustBuffer.ByValue) = uniffiRustCall() { status ->
+            UniffiLib.INSTANCE.ffi_florestad_ffi_rustbuffer_free(buf, status)
         }
     }
 
@@ -186,11 +194,11 @@ public interface FfiConverterRustBuffer<KotlinType>: FfiConverter<KotlinType, Ru
 // This would be a good candidate for isolating in its own ffi-support lib.
 // Error runtime.
 @Structure.FieldOrder("code", "error_buf")
-internal open class RustCallStatus : Structure() {
+internal open class UniffiRustCallStatus : Structure() {
     @JvmField var code: Byte = 0
     @JvmField var error_buf: RustBuffer.ByValue = RustBuffer.ByValue()
 
-    class ByValue: RustCallStatus(), Structure.ByValue
+    class ByValue: UniffiRustCallStatus(), Structure.ByValue
 
     fun isSuccess(): Boolean {
         return code == 0.toByte()
@@ -208,7 +216,7 @@ internal open class RustCallStatus : Structure() {
 class InternalException(message: String) : Exception(message)
 
 // Each top-level error class has a companion object that can lift the error from the call status's rust buffer
-interface CallStatusErrorHandler<E> {
+interface UniffiRustCallStatusErrorHandler<E> {
     fun lift(error_buf: RustBuffer.ByValue): E;
 }
 
@@ -217,15 +225,15 @@ interface CallStatusErrorHandler<E> {
 // synchronize itself
 
 // Call a rust function that returns a Result<>.  Pass in the Error class companion that corresponds to the Err
-private inline fun <U, E: Exception> rustCallWithError(errorHandler: CallStatusErrorHandler<E>, callback: (RustCallStatus) -> U): U {
-    var status = RustCallStatus();
+private inline fun <U, E: Exception> uniffiRustCallWithError(errorHandler: UniffiRustCallStatusErrorHandler<E>, callback: (UniffiRustCallStatus) -> U): U {
+    var status = UniffiRustCallStatus();
     val return_value = callback(status)
-    checkCallStatus(errorHandler, status)
+    uniffiCheckCallStatus(errorHandler, status)
     return return_value
 }
 
-// Check RustCallStatus and throw an error if the call wasn't successful
-private fun<E: Exception> checkCallStatus(errorHandler: CallStatusErrorHandler<E>, status: RustCallStatus) {
+// Check UniffiRustCallStatus and throw an error if the call wasn't successful
+private fun<E: Exception> uniffiCheckCallStatus(errorHandler: UniffiRustCallStatusErrorHandler<E>, status: UniffiRustCallStatus) {
     if (status.isSuccess()) {
         return
     } else if (status.isError()) {
@@ -244,8 +252,8 @@ private fun<E: Exception> checkCallStatus(errorHandler: CallStatusErrorHandler<E
     }
 }
 
-// CallStatusErrorHandler implementation for times when we don't expect a CALL_ERROR
-object NullCallStatusErrorHandler: CallStatusErrorHandler<InternalException> {
+// UniffiRustCallStatusErrorHandler implementation for times when we don't expect a CALL_ERROR
+object UniffiNullRustCallStatusErrorHandler: UniffiRustCallStatusErrorHandler<InternalException> {
     override fun lift(error_buf: RustBuffer.ByValue): InternalException {
         RustBuffer.free(error_buf)
         return InternalException("Unexpected CALL_ERROR")
@@ -253,8 +261,8 @@ object NullCallStatusErrorHandler: CallStatusErrorHandler<InternalException> {
 }
 
 // Call a rust function that returns a plain value
-private inline fun <U> rustCall(callback: (RustCallStatus) -> U): U {
-    return rustCallWithError(NullCallStatusErrorHandler, callback);
+private inline fun <U> uniffiRustCall(callback: (UniffiRustCallStatus) -> U): U {
+    return uniffiRustCallWithError(UniffiNullRustCallStatusErrorHandler, callback);
 }
 
 // IntegerType that matches Rust's `usize` / C's `size_t`
@@ -341,7 +349,7 @@ internal class UniFfiHandleMap<T: Any> {
 
 // FFI type for Rust future continuations
 internal interface UniFffiRustFutureContinuationCallbackType : com.sun.jna.Callback {
-    fun callback(continuationHandle: USize, pollResult: Short);
+    fun callback(continuationHandle: USize, pollResult: Byte);
 }
 
 // Contains loading, initialization code,
@@ -364,140 +372,145 @@ private inline fun <reified Lib : Library> loadIndirect(
 // A JNA Library to expose the extern-C FFI definitions.
 // This is an implementation detail which will be called internally by the public API.
 
-internal interface _UniFFILib : Library {
+internal interface UniffiLib : Library {
     companion object {
-        internal val INSTANCE: _UniFFILib by lazy {
-            loadIndirect<_UniFFILib>(componentName = "floresta")
-            .also { lib: _UniFFILib ->
+        internal val INSTANCE: UniffiLib by lazy {
+            loadIndirect<UniffiLib>(componentName = "floresta")
+            .also { lib: UniffiLib ->
                 uniffiCheckContractApiVersion(lib)
                 uniffiCheckApiChecksums(lib)
                 }
         }
+        
+        // The Cleaner for the whole library
+        internal val CLEANER: UniffiCleaner by lazy {
+            UniffiCleaner.create()
+        }
     }
 
-    fun uniffi_florestad_ffi_fn_free_florestad(`ptr`: Pointer,_uniffi_out_err: RustCallStatus, 
-    ): Unit
-    fun uniffi_florestad_ffi_fn_constructor_florestad_from_config(`conf`: RustBuffer.ByValue,_uniffi_out_err: RustCallStatus, 
+    fun uniffi_florestad_ffi_fn_clone_florestad(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Pointer
-    fun uniffi_florestad_ffi_fn_constructor_florestad_new(_uniffi_out_err: RustCallStatus, 
+    fun uniffi_florestad_ffi_fn_free_florestad(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
+    ): Unit
+    fun uniffi_florestad_ffi_fn_constructor_florestad_from_config(`conf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Pointer
-    fun uniffi_florestad_ffi_fn_method_florestad_start(`ptr`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun uniffi_florestad_ffi_fn_constructor_florestad_new(uniffi_out_err: UniffiRustCallStatus, 
+    ): Pointer
+    fun uniffi_florestad_ffi_fn_method_florestad_start(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun uniffi_florestad_ffi_fn_method_florestad_stop(`ptr`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun uniffi_florestad_ffi_fn_method_florestad_stop(`ptr`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun ffi_florestad_ffi_rustbuffer_alloc(`size`: Int,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rustbuffer_alloc(`size`: Int,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_florestad_ffi_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rustbuffer_from_bytes(`bytes`: ForeignBytes.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_florestad_ffi_rustbuffer_free(`buf`: RustBuffer.ByValue,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rustbuffer_free(`buf`: RustBuffer.ByValue,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
-    fun ffi_florestad_ffi_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Int,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rustbuffer_reserve(`buf`: RustBuffer.ByValue,`additional`: Int,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_florestad_ffi_rust_future_continuation_callback_set(`callback`: UniFffiRustFutureContinuationCallbackType,
-    ): Unit
-    fun ffi_florestad_ffi_rust_future_poll_u8(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_u8(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_u8(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_u8(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_u8(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_u8(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun ffi_florestad_ffi_rust_future_poll_i8(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_i8(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_i8(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_i8(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_i8(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_i8(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Byte
-    fun ffi_florestad_ffi_rust_future_poll_u16(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_u16(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_u16(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_u16(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_u16(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_u16(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Short
-    fun ffi_florestad_ffi_rust_future_poll_i16(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_i16(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_i16(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_i16(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_i16(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_i16(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Short
-    fun ffi_florestad_ffi_rust_future_poll_u32(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_u32(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_u32(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_u32(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_u32(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_u32(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Int
-    fun ffi_florestad_ffi_rust_future_poll_i32(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_i32(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_i32(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_i32(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_i32(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_i32(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Int
-    fun ffi_florestad_ffi_rust_future_poll_u64(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_u64(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_u64(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_u64(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_u64(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_u64(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
-    fun ffi_florestad_ffi_rust_future_poll_i64(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_i64(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_i64(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_i64(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_i64(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_i64(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Long
-    fun ffi_florestad_ffi_rust_future_poll_f32(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_f32(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_f32(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_f32(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_f32(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_f32(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Float
-    fun ffi_florestad_ffi_rust_future_poll_f64(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_f64(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_f64(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_f64(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_f64(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_f64(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Double
-    fun ffi_florestad_ffi_rust_future_poll_pointer(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_pointer(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_pointer(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_pointer(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_pointer(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_pointer(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Pointer
-    fun ffi_florestad_ffi_rust_future_poll_rust_buffer(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_rust_buffer(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_rust_buffer(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_rust_buffer(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_rust_buffer(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_rust_buffer(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): RustBuffer.ByValue
-    fun ffi_florestad_ffi_rust_future_poll_void(`handle`: Pointer,`uniffiCallback`: USize,
+    fun ffi_florestad_ffi_rust_future_poll_void(`handle`: Pointer,`callback`: UniFffiRustFutureContinuationCallbackType,`callbackData`: USize,
     ): Unit
     fun ffi_florestad_ffi_rust_future_cancel_void(`handle`: Pointer,
     ): Unit
     fun ffi_florestad_ffi_rust_future_free_void(`handle`: Pointer,
     ): Unit
-    fun ffi_florestad_ffi_rust_future_complete_void(`handle`: Pointer,_uniffi_out_err: RustCallStatus, 
+    fun ffi_florestad_ffi_rust_future_complete_void(`handle`: Pointer,uniffi_out_err: UniffiRustCallStatus, 
     ): Unit
     fun uniffi_florestad_ffi_checksum_method_florestad_start(
     ): Short
@@ -512,9 +525,9 @@ internal interface _UniFFILib : Library {
     
 }
 
-private fun uniffiCheckContractApiVersion(lib: _UniFFILib) {
+private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
     // Get the bindings contract version from our ComponentInterface
-    val bindings_contract_version = 24
+    val bindings_contract_version = 25
     // Get the scaffolding contract version by calling the into the dylib
     val scaffolding_contract_version = lib.ffi_florestad_ffi_uniffi_contract_version()
     if (bindings_contract_version != scaffolding_contract_version) {
@@ -523,14 +536,14 @@ private fun uniffiCheckContractApiVersion(lib: _UniFFILib) {
 }
 
 @Suppress("UNUSED_PARAMETER")
-private fun uniffiCheckApiChecksums(lib: _UniFFILib) {
+private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_florestad_ffi_checksum_method_florestad_start() != 38627.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_florestad_ffi_checksum_method_florestad_stop() != 18190.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_florestad_ffi_checksum_constructor_florestad_from_config() != 46241.toShort()) {
+    if (lib.uniffi_florestad_ffi_checksum_constructor_florestad_from_config() != 51059.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_florestad_ffi_checksum_constructor_florestad_new() != 11677.toShort()) {
@@ -542,6 +555,36 @@ private fun uniffiCheckApiChecksums(lib: _UniFFILib) {
 
 // Public interface members begin here.
 
+
+// Interface implemented by anything that can contain an object reference.
+//
+// Such types expose a `destroy()` method that must be called to cleanly
+// dispose of the contained objects. Failure to call this method may result
+// in memory leaks.
+//
+// The easiest way to ensure this method is called is to use the `.use`
+// helper method to execute a block and destroy the object at the end.
+interface Disposable {
+    fun destroy()
+    companion object {
+        fun destroy(vararg args: Any?) {
+            args.filterIsInstance<Disposable>()
+                .forEach(Disposable::destroy)
+        }
+    }
+}
+
+inline fun <T : Disposable?, R> T.use(block: (T) -> R) =
+    try {
+        block(this)
+    } finally {
+        try {
+            // N.B. our implementation is on the nullable type `Disposable?`.
+            this?.destroy()
+        } catch (e: Throwable) {
+            // swallow
+        }
+    }
 
 public object FfiConverterInt: FfiConverter<Int, Int> {
     override fun lift(value: Int): Int {
@@ -619,35 +662,65 @@ public object FfiConverterString: FfiConverter<String, RustBuffer.ByValue> {
 
 
 
-// Interface implemented by anything that can contain an object reference.
+// The cleaner interface for Object finalization code to run.
+// This is the entry point to any implementation that we're using.
 //
-// Such types expose a `destroy()` method that must be called to cleanly
-// dispose of the contained objects. Failure to call this method may result
-// in memory leaks.
-//
-// The easiest way to ensure this method is called is to use the `.use`
-// helper method to execute a block and destroy the object at the end.
-interface Disposable {
-    fun destroy()
-    companion object {
-        fun destroy(vararg args: Any?) {
-            args.filterIsInstance<Disposable>()
-                .forEach(Disposable::destroy)
-        }
+// The cleaner registers objects and returns cleanables, so now we are
+// defining a `UniffiCleaner` with a `UniffiClenaer.Cleanable` to abstract the
+// different implmentations available at compile time.
+interface UniffiCleaner {
+    interface Cleanable {
+        fun clean()
     }
+
+    fun register(value: Any, cleanUpTask: Runnable): UniffiCleaner.Cleanable
+
+    companion object
 }
 
-inline fun <T : Disposable?, R> T.use(block: (T) -> R) =
+// The fallback Jna cleaner, which is available for both Android, and the JVM.
+private class UniffiJnaCleaner : UniffiCleaner {
+    private val cleaner = com.sun.jna.internal.Cleaner.getCleaner()
+
+    override fun register(value: Any, cleanUpTask: Runnable): UniffiCleaner.Cleanable =
+        UniffiJnaCleanable(cleaner.register(value, cleanUpTask))
+}
+
+private class UniffiJnaCleanable(
+    private val cleanable: com.sun.jna.internal.Cleaner.Cleanable,
+) : UniffiCleaner.Cleanable {
+    override fun clean() = cleanable.clean()
+}
+
+// We decide at uniffi binding generation time whether we were
+// using Android or not.
+// There are further runtime checks to chose the correct implementation
+// of the cleaner.
+private fun UniffiCleaner.Companion.create(): UniffiCleaner =
     try {
-        block(this)
-    } finally {
-        try {
-            // N.B. our implementation is on the nullable type `Disposable?`.
-            this?.destroy()
-        } catch (e: Throwable) {
-            // swallow
-        }
+        // For safety's sake: if the library hasn't been run in android_cleaner = true
+        // mode, but is being run on Android, then we still need to think about
+        // Android API versions.
+        // So we check if java.lang.ref.Cleaner is there, and use that…
+        java.lang.Class.forName("java.lang.ref.Cleaner")
+        JavaLangRefCleaner()
+    } catch (e: ClassNotFoundException) {
+        // … otherwise, fallback to the JNA cleaner.
+        UniffiJnaCleaner()
     }
+
+private class JavaLangRefCleaner : UniffiCleaner {
+    val cleaner = java.lang.ref.Cleaner.create()
+
+    override fun register(value: Any, cleanUpTask: Runnable): UniffiCleaner.Cleanable =
+        JavaLangRefCleanable(cleaner.register(value, cleanUpTask))
+}
+
+private class JavaLangRefCleanable(
+    val cleanable: java.lang.ref.Cleaner.Cleanable
+) : UniffiCleaner.Cleanable {
+    override fun clean() = cleanable.clean()
+}
 
 // The base class for all UniFFI Object types.
 //
@@ -668,8 +741,8 @@ inline fun <T : Disposable?, R> T.use(block: (T) -> R) =
 //
 //   * Given an `FFIObject` instance, calling code is expected to call the special
 //     `destroy` method in order to free it after use, either by calling it explicitly
-//     or by using a higher-level helper like the `use` method. Failing to do so will
-//     leak the underlying Rust struct.
+//     or by using a higher-level helper like the `use` method. Failing to do so risks
+//     leaking the underlying Rust struct.
 //
 //   * We can't assume that calling code will do the right thing, and must be prepared
 //     to handle Kotlin method calls executing concurrently with or even after a call to
@@ -678,6 +751,14 @@ inline fun <T : Disposable?, R> T.use(block: (T) -> R) =
 //   * We must never allow Rust code to operate on the underlying Rust struct after
 //     the destructor has been called, and must never call the destructor more than once.
 //     Doing so may trigger memory unsafety.
+//
+//   * To mitigate many of the risks of leaking memory and use-after-free unsafety, a `Cleaner`
+//     is implemented to call the destructor when the Kotlin object becomes unreachable.
+//     This is done in a background thread. This is not a panacea, and client code should be aware that
+//      1. the thread may starve if some there are objects that have poorly performing
+//     `drop` methods or do significant work in their `drop` methods.
+//      2. the thread is shared across the whole library. This can be tuned by using `android_cleaner = true`,
+//         or `android = true` in the [`kotlin` section of the `uniffi.toml` file](https://mozilla.github.io/uniffi-rs/kotlin/configuration.html).
 //
 // If we try to implement this with mutual exclusion on access to the pointer, there is the
 // possibility of a race between a method call and a concurrent call to `destroy`:
@@ -720,25 +801,51 @@ inline fun <T : Disposable?, R> T.use(block: (T) -> R) =
 // called *and* all in-flight method calls have completed, avoiding violating any of the expectations
 // of the underlying Rust code.
 //
-// In the future we may be able to replace some of this with automatic finalization logic, such as using
-// the new "Cleaner" functionaility in Java 9. The above scheme has been designed to work even if `destroy` is
-// invoked by garbage-collection machinery rather than by calling code (which by the way, it's apparently also
-// possible for the JVM to finalize an object while there is an in-flight call to one of its methods [1],
-// so there would still be some complexity here).
+// This makes a cleaner a better alternative to _not_ calling `destroy()` as
+// and when the object is finished with, but the abstraction is not perfect: if the Rust object's `drop`
+// method is slow, and/or there are many objects to cleanup, and it's on a low end Android device, then the cleaner
+// thread may be starved, and the app will leak memory.
 //
-// Sigh...all of this for want of a robust finalization mechanism.
+// In this case, `destroy`ing manually may be a better solution.
+//
+// The cleaner can live side by side with the manual calling of `destroy`. In the order of responsiveness, uniffi objects
+// with Rust peers are reclaimed:
+//
+// 1. By calling the `destroy` method of the object, which calls `rustObject.free()`. If that doesn't happen:
+// 2. When the object becomes unreachable, AND the Cleaner thread gets to call `rustObject.free()`. If the thread is starved then:
+// 3. The memory is reclaimed when the process terminates.
 //
 // [1] https://stackoverflow.com/questions/24376768/can-java-finalize-an-object-when-it-is-still-in-scope/24380219
 //
-abstract class FFIObject(
-    protected val pointer: Pointer
-): Disposable, AutoCloseable {
+abstract class FFIObject: Disposable, AutoCloseable {
+
+    constructor(pointer: Pointer) {
+        this.pointer = pointer
+    }
+
+    /**
+     * This constructor can be used to instantiate a fake object.
+     *
+     * **WARNING: Any object instantiated with this constructor cannot be passed to an actual Rust-backed object.**
+     * Since there isn't a backing [Pointer] the FFI lower functions will crash.
+     * @param noPointer Placeholder value so we can have a constructor separate from the default empty one that may be
+     *   implemented for classes extending [FFIObject].
+     */
+    @Suppress("UNUSED_PARAMETER")
+    constructor(noPointer: NoPointer) {
+        this.pointer = null
+    }
+
+    protected val pointer: Pointer?
+    protected abstract val cleanable: UniffiCleaner.Cleanable
 
     private val wasDestroyed = AtomicBoolean(false)
     private val callCounter = AtomicLong(1)
 
-    open protected fun freeRustArcPtr() {
-        // To be overridden in subclasses.
+    open fun uniffiClonePointer(): Pointer {
+        // Overridden by generated subclasses, the default method exists to allow users to manually
+        // implement the interface
+        throw RuntimeException("uniffiClonePointer not implemented")
     }
 
     override fun destroy() {
@@ -747,7 +854,7 @@ abstract class FFIObject(
         if (this.wasDestroyed.compareAndSet(false, true)) {
             // This decrement always matches the initial count of 1 given at creation time.
             if (this.callCounter.decrementAndGet() == 0L) {
-                this.freeRustArcPtr()
+                cleanable.clean()
             }
         }
     }
@@ -771,51 +878,72 @@ abstract class FFIObject(
         } while (! this.callCounter.compareAndSet(c, c + 1L))
         // Now we can safely do the method call without the pointer being freed concurrently.
         try {
-            return block(this.pointer)
+            return block(this.uniffiClonePointer())
         } finally {
             // This decrement always matches the increment we performed above.
             if (this.callCounter.decrementAndGet() == 0L) {
-                this.freeRustArcPtr()
+                cleanable.clean()
             }
         }
     }
 }
 
+/** Used to instantiate a [FFIObject] without an actual pointer, for fakes in tests, mostly. */
+object NoPointer
+
+
 public interface FlorestadInterface {
+    
     fun `start`()
+    
     fun `stop`()
     
     companion object
 }
 
+open class Florestad : FFIObject, FlorestadInterface {
 
-class Florestad(
-    pointer: Pointer
-) : FFIObject(pointer), FlorestadInterface{
-    constructor() :
-        this(
-    rustCall() { _status ->
-    _UniFFILib.INSTANCE.uniffi_florestad_ffi_fn_constructor_florestad_new(_status)
-})
+    constructor(pointer: Pointer): super(pointer)
 
     /**
-     * Disconnect the object from the underlying Rust object.
+     * This constructor can be used to instantiate a fake object.
      *
-     * It can be called more than once, but once called, interacting with the object
-     * causes an `IllegalStateException`.
-     *
-     * Clients **must** call this method once done with the object, or cause a memory leak.
+     * **WARNING: Any object instantiated with this constructor cannot be passed to an actual Rust-backed object.**
+     * Since there isn't a backing [Pointer] the FFI lower functions will crash.
+     * @param noPointer Placeholder value so we can have a constructor separate from the default empty one that may be
+     *   implemented for classes extending [FFIObject].
      */
-    override protected fun freeRustArcPtr() {
-        rustCall() { status ->
-            _UniFFILib.INSTANCE.uniffi_florestad_ffi_fn_free_florestad(this.pointer, status)
+    constructor(noPointer: NoPointer): super(noPointer)
+    constructor() :
+        this(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_florestad_ffi_fn_constructor_florestad_new(_status)
+})
+
+    override val cleanable: UniffiCleaner.Cleanable = UniffiLib.CLEANER.register(this, UniffiCleanAction(pointer))
+
+    // Use a static inner class instead of a closure so as not to accidentally
+    // capture `this` as part of the cleanable's action.
+    private class UniffiCleanAction(private val pointer: Pointer?) : Runnable {
+        override fun run() {
+            pointer?.let { ptr ->
+                uniffiRustCall { status ->
+                    UniffiLib.INSTANCE.uniffi_florestad_ffi_fn_free_florestad(ptr, status)
+                }
+            }
+        }
+    }
+
+    override fun uniffiClonePointer(): Pointer {
+        return uniffiRustCall() { status ->
+            UniffiLib.INSTANCE.uniffi_florestad_ffi_fn_clone_florestad(pointer!!, status)
         }
     }
 
     override fun `start`() =
         callWithPointer {
-    rustCall() { _status ->
-    _UniFFILib.INSTANCE.uniffi_florestad_ffi_fn_method_florestad_start(it,
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_florestad_ffi_fn_method_florestad_start(it,
         
         _status)
 }
@@ -824,8 +952,8 @@ class Florestad(
     
     override fun `stop`() =
         callWithPointer {
-    rustCall() { _status ->
-    _UniFFILib.INSTANCE.uniffi_florestad_ffi_fn_method_florestad_stop(it,
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_florestad_ffi_fn_method_florestad_stop(it,
         
         _status)
 }
@@ -835,10 +963,11 @@ class Florestad(
     
 
     companion object {
+        
         fun `fromConfig`(`conf`: Config): Florestad =
             Florestad(
-    rustCall() { _status ->
-    _UniFFILib.INSTANCE.uniffi_florestad_ffi_fn_constructor_florestad_from_config(FfiConverterTypeConfig.lower(`conf`),_status)
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_florestad_ffi_fn_constructor_florestad_from_config(FfiConverterTypeConfig.lower(`conf`),_status)
 })
         
     }
@@ -848,7 +977,7 @@ class Florestad(
 public object FfiConverterTypeFlorestad: FfiConverter<Florestad, Pointer> {
 
     override fun lower(value: Florestad): Pointer {
-        return value.callWithPointer { it }
+        return value.uniffiClonePointer()
     }
 
     override fun lift(value: Pointer): Florestad {
@@ -869,7 +998,6 @@ public object FfiConverterTypeFlorestad: FfiConverter<Florestad, Pointer> {
         buf.putLong(Pointer.nativeValue(lower(value)))
     }
 }
-
 
 
 
@@ -922,9 +1050,12 @@ public object FfiConverterTypeConfig: FfiConverterRustBuffer<Config> {
 
 
 
-
 enum class Network {
-    BITCOIN,SIGNET,TESTNET,REGTEST;
+    
+    BITCOIN,
+    SIGNET,
+    TESTNET,
+    REGTEST;
     companion object
 }
 

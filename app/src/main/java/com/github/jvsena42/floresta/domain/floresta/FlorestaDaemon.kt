@@ -1,13 +1,13 @@
 package com.github.jvsena42.floresta.domain.floresta
 
 import android.util.Log
-import com.florestad.Config
-import com.florestad.Florestad
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
 import kotlinx.coroutines.delay
 import org.bitcoindevkit.Descriptor
 import org.rustbitcoin.bitcoin.Network
-import com.florestad.Network as FlorestaNetwork
+import uniffi.floresta.Config
+import uniffi.floresta.Florestad
+import uniffi.floresta.Network as FlorestaNetwork
 import kotlin.let
 import kotlin.time.Duration.Companion.seconds
 
@@ -36,7 +36,7 @@ class FlorestaDaemonImpl(
                     Descriptor(
                         descriptor = it.descriptor,
                         Network.SIGNET
-                    ).toStringWithSecret()
+                    ).toString()
                 )
             }
             Log.d(TAG, "start: descriptor list: $descriptorList")
