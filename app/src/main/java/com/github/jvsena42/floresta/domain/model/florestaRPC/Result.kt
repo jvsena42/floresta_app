@@ -21,7 +21,7 @@ data class Result(
     @SerializedName("leaf_count")
     val leafCount: Int,
     @SerializedName("progress")
-    val progress: Int,
+    val progress: Double,
     @SerializedName("root_count")
     val rootCount: Int,
     @SerializedName("root_hashes")

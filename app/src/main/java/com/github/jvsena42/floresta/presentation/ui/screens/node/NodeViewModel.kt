@@ -5,10 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.jvsena42.floresta.data.FlorestaRpc
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class NodeViewModel(
     private val florestaRpc: FlorestaRpc
@@ -18,11 +21,20 @@ class NodeViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        getInfo()
+        getInLoop()
     }
 
-    private  fun getInfo() {
+    private fun getInLoop() {
         viewModelScope.launch(Dispatchers.IO) {
+            getInfo()
+            delay(3.seconds)
+            getInLoop()
+        }
+    }
+
+    private fun getInfo() {
+        viewModelScope.launch(Dispatchers.IO) {
+            florestaRpc.rescan().first()
             florestaRpc.getBlockchainInfo().collect { result ->
                 result.onSuccess { data ->
                     Log.d(TAG, "getInfo: $data")
@@ -33,7 +45,9 @@ class NodeViewModel(
                     ) }
                 }
             }
-
+            florestaRpc.getPeerInfo().collect { result ->
+                Log.d(TAG, "getPeerInfo: ${result.getOrNull()}")
+            }
         }
     }
 
