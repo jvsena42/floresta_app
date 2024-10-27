@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation("net.java.dev.jna:jna:5.14.0@aar")
     implementation("com.google.zxing:core:3.4.1")
-    implementation(libs.ktor.network)
+    implementation ("com.google.code.gson:gson:2.11.0")
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)

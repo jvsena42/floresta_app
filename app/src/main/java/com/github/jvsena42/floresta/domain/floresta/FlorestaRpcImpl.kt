@@ -1,21 +1,26 @@
 package com.github.jvsena42.floresta.domain.floresta
 
 import android.util.Log
+import com.github.jvsena42.floresta.data.FlorestaRpc
+import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 
-class FlorestaRpcImpl : FlorestaRpc {
+class FlorestaRpcImpl(
+    private val gson: Gson,
+) : FlorestaRpc {
     var host: String = "http://$ELECTRUM_ADDRESS"
 
-    override suspend fun rescan(): Flow<Result<JSONObject>> = callbackFlow {
+    override suspend fun rescan(): Flow<Result<JSONObject>> = flow {
         Log.d(TAG, "rescan: ")
         val arguments = JSONArray()
         arguments.put(0)
 
-        send(
+        emit(
             sendJsonRpcRequest(
                 host,
                 "rescan",
@@ -24,11 +29,11 @@ class FlorestaRpcImpl : FlorestaRpc {
         )
     }
 
-    override suspend fun getPeerInfo(): Flow<Result<JSONObject>> = callbackFlow {
+    override suspend fun getPeerInfo(): Flow<Result<JSONObject>> = flow {
         Log.d(TAG, "getPeerInfo: ")
         val arguments = JSONArray()
 
-        send(
+        emit(
             sendJsonRpcRequest(
                 host,
                 "getpeerinfo",
@@ -41,11 +46,11 @@ class FlorestaRpcImpl : FlorestaRpc {
         TODO("Not yet implemented")
     }
 
-    override suspend fun stop(): Flow<Result<JSONObject>> = callbackFlow {
+    override suspend fun stop(): Flow<Result<JSONObject>> = flow {
         Log.d(TAG, "stop: ")
         val arguments = JSONArray()
 
-        send(
+        emit(
             sendJsonRpcRequest(
                 host,
                 "stop",
@@ -54,23 +59,29 @@ class FlorestaRpcImpl : FlorestaRpc {
         )
     }
 
-    override suspend fun getBlockchainInfo(): Flow<Result<JSONObject>> = callbackFlow {
+    override suspend fun getBlockchainInfo(): Flow<Result<GetBlockchainInfoResponse>> = flow {
         Log.d(TAG, "getBlockchainInfo: ")
         val arguments = JSONArray()
 
-        send(
-            sendJsonRpcRequest(
-                host,
-                "getblockchaininfo",
-                arguments
-            )
+        sendJsonRpcRequest(
+            host,
+            "getblockchaininfo",
+            arguments
+        ).fold(
+            onSuccess = { json ->
+                emit(Result.success(gson.fromJson(json.toString(),
+                    GetBlockchainInfoResponse::class.java) ))
+            },
+            onFailure = { e ->
+                emit(Result.failure(e))
+            }
         )
     }
 
     suspend fun sendJsonRpcRequest(
         endpoint: String,
         method: String,
-        params: JSONArray
+        params: JSONArray,
     ): Result<JSONObject> {
         Log.d(TAG, "sendJsonRpcRequest: ")
         return try {
@@ -95,7 +106,7 @@ class FlorestaRpcImpl : FlorestaRpc {
             val response = client.newCall(request).execute()
 
             val body = response.body
-            Result.success(JSONObject(body.toString()))
+            Result.success(JSONObject(body?.string().orEmpty()))
         } catch (e: Exception) {
             Log.e(TAG, "sendJsonRpcRequest error:", e)
             Result.failure(e)

@@ -2,9 +2,6 @@ package com.github.jvsena42.floresta.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Primary = Color(0xFF0E5130)
-
-
 val primaryLight = Color(0xFF815600)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFFEB22C)
