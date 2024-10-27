@@ -11,6 +11,7 @@ import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemon
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemonImpl
 import com.github.jvsena42.floresta.domain.floresta.FlorestaRpc
 import com.github.jvsena42.floresta.domain.floresta.FlorestaRpcImpl
+import com.github.jvsena42.floresta.domain.floresta.FlorestaRpcKtor
 import com.github.jvsena42.floresta.domain.floresta.FlorestaService
 import com.github.jvsena42.floresta.presentation.ui.screens.main.MainViewmodel
 import com.github.jvsena42.floresta.presentation.ui.screens.home.HomeViewModel
@@ -75,5 +76,5 @@ val domainModule = module {
             walletRepository = get()
         )
     }
-    single<FlorestaRpc> { FlorestaRpcImpl() }
+    single<FlorestaRpcKtor> { FlorestaRpcKtor() }
 }

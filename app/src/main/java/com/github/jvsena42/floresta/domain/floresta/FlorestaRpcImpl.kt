@@ -104,7 +104,7 @@ class FlorestaRpcImpl : FlorestaRpc {
 
     private companion object {
         private const val TAG = "FlorestaRpcImpl"
-        private const val ELECTRUM_ADDRESS = "127.0.0.1:50001"
+        private const val ELECTRUM_ADDRESS = "127.0.0.1:38332"
     }
 
 }
