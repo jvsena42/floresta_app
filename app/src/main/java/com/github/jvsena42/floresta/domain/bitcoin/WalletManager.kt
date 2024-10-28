@@ -186,14 +186,18 @@ class WalletManager(
             fullScan()
         } else {
             Log.d(TAG, "sync: normal sync")
-            val syncRequest = wallet.startSyncWithRevealedSpks().build()
-            val update = blockchainClient.sync(
-                syncRequest = syncRequest,
-                batchSize = 100u,
-                fetchPrevTxouts = true
-            )
-            wallet.applyUpdate(update)
-            wallet.persist(dbConnection)
+            try {
+                val syncRequest = wallet.startSyncWithRevealedSpks().build()
+                val update = blockchainClient.sync(
+                    syncRequest = syncRequest,
+                    batchSize = 100u,
+                    fetchPrevTxouts = true
+                )
+                wallet.applyUpdate(update)
+                wallet.persist(dbConnection)
+            } catch (e: Exception) {
+                Log.e(TAG, "sync error: ", e)
+            }
         }
     }
 
