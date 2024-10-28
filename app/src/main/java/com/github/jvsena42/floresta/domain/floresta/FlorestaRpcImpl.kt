@@ -4,6 +4,7 @@ import android.util.Log
 import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetPeerInfoResponse
+import com.github.jvsena42.floresta.domain.model.florestaRPC.RpcMethods
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -25,7 +26,7 @@ class FlorestaRpcImpl(
         emit(
             sendJsonRpcRequest(
                 host,
-                "rescan",
+                RpcMethods.RESCAN.method,
                 arguments
             )
         )
@@ -37,7 +38,7 @@ class FlorestaRpcImpl(
 
         sendJsonRpcRequest(
             host,
-            "getpeerinfo",
+            RpcMethods.GET_PEER_INFO.method,
             arguments
         ).fold(
             onSuccess = { json ->
@@ -65,7 +66,7 @@ class FlorestaRpcImpl(
         emit(
             sendJsonRpcRequest(
                 host,
-                "stop",
+                RpcMethods.STOP.method,
                 arguments
             )
         )
@@ -77,7 +78,7 @@ class FlorestaRpcImpl(
 
         sendJsonRpcRequest(
             host,
-            "getblockchaininfo",
+            RpcMethods.GET_BLOCKCHAIN_INFO.method,
             arguments
         ).fold(
             onSuccess = { json ->
