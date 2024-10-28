@@ -19,3 +19,9 @@ fun ULong?.formatInBtc(): String {
 //    }
 //    return DecimalFormat("0.00000000").format(balanceInSats)
 //}
+
+fun String?.filterInternalBrackets() : String{
+    if (this.isNullOrEmpty()) return ""
+
+    return this.replace(Regex("""\[([^\[\]]*)\]"""), "$1")
+}

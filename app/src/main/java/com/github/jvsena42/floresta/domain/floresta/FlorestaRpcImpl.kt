@@ -5,6 +5,7 @@ import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetPeerInfoResponse
 import com.github.jvsena42.floresta.domain.model.florestaRPC.RpcMethods
+import com.github.jvsena42.floresta.presentation.util.filterInternalBrackets
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -36,14 +37,14 @@ class FlorestaRpcImpl(
     }
 
     override suspend fun loadDescriptor(descriptor: String): Flow<Result<JSONObject>> = flow {
-        Log.d(TAG, "loadDescriptor: $descriptor")
+        Log.d(TAG, "loadDescriptor: $descriptor \n ${descriptor.filterInternalBrackets()}")
         val arguments = JSONArray()
         arguments.put(descriptor)
 
         getBlockchainInfo().first().onSuccess { result ->
             if (result.result.ibd) {
                 delay(10.seconds)
-                loadDescriptor(descriptor)
+                loadDescriptor(descriptor.filterInternalBrackets())
             } else {
                 emit(
                     sendJsonRpcRequest(
@@ -55,7 +56,7 @@ class FlorestaRpcImpl(
             }
         }.onFailure {
             delay(30.seconds)
-            loadDescriptor(descriptor)
+            loadDescriptor(descriptor.filterInternalBrackets())
         }
     }
 
