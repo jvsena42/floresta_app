@@ -6,6 +6,10 @@ import com.github.jvsena42.floresta.domain.model.ChainPosition
 import com.github.jvsena42.floresta.domain.model.Constants.PERSISTENCE_VERSION
 import com.github.jvsena42.floresta.domain.model.TransactionDetails
 import com.github.jvsena42.floresta.domain.model.TxType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.bitcoindevkit.Address
 import org.bitcoindevkit.AddressInfo
 import org.bitcoindevkit.Connection
@@ -37,10 +41,12 @@ class WalletManager(
     private val blockchainClient: ElectrumClient by lazy { ElectrumClient(ELECTRUM_ADDRESS) }
     private var fullScanRequired: Boolean = true
 
+    private val ioScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     init {
         setPathAndConnectDb(dbPath)
         if (walletRepository.doesWalletExist()) {
-            loadWallet()
+           ioScope.launch { loadWallet() }
         }
     }
 
