@@ -28,24 +28,19 @@ class FlorestaDaemonImpl(
             return
         }
         try {
-            val descriptorList = walletRepository.getInitialWalletData().getOrNull()?.let {
-                listOf(
-                    Descriptor(
-                        descriptor = it.descriptor,
-                        Network.SIGNET
-                    ).toString()
-                )
+            val descriptor = walletRepository.getInitialWalletData().getOrNull()?.let {
+                Descriptor(
+                    descriptor = it.descriptor,
+                    Network.SIGNET
+                ).toString()
             }
-            Log.d(TAG, "start: descriptor list: $descriptorList")
-            if (descriptorList.isNullOrEmpty()) {
-                Log.w(TAG, "start: Empty descriptor list")
-            }
+            Log.d(TAG, "start: descriptor : $descriptor")
             Log.d(TAG, "start: datadir: $datadir")
             val config = Config(
                 dataDir = datadir,
                 electrumAddress = ELECTRUM_ADDRESS,
                 network = FlorestaNetwork.SIGNET,
-                walletDescriptor = descriptorList?.firstOrNull()
+                walletDescriptor = descriptor
             )
             daemon = Florestad.fromConfig(config)
             daemon.start().also {
