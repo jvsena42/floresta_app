@@ -46,7 +46,7 @@ class FlorestaDaemonImpl(
                 dataDir = datadir,
                 electrumAddress = ELECTRUM_ADDRESS,
                 network = FlorestaNetwork.SIGNET,
-                walletDescriptor = descriptorList.toString().filterInternalBrackets()
+                walletDescriptor = descriptorList?.firstOrNull()
             )
             daemon = Florestad.fromConfig(config)
             daemon.start().also {
