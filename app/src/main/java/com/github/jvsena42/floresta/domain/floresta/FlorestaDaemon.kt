@@ -1,13 +1,12 @@
 package com.github.jvsena42.floresta.domain.floresta
 
 import android.util.Log
+import com.florestad.Florestad
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
-import com.github.jvsena42.floresta.presentation.util.filterInternalBrackets
 import org.bitcoindevkit.Descriptor
 import org.rustbitcoin.bitcoin.Network
-import uniffi.floresta.Config
-import uniffi.floresta.Florestad
-import uniffi.floresta.Network as FlorestaNetwork
+import com.florestad.Config
+import com.florestad.Network as FlorestaNetwork
 import kotlin.let
 
 interface FlorestaDaemon {
