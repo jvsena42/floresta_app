@@ -50,8 +50,8 @@ class HomeViewModel(
 
     private suspend fun updateUI() {
         if (walletRepository.doesWalletExist()) {
-            Log.d(TAG, "setup: Wallet exists")
             val balanceSats = walletManager.getBalance()
+            Log.d(TAG, "setup: Wallet exists. balance: $balanceSats")
             _uiState.update {
                 it.copy(
                     balanceBTC = balanceSats.formatInBtc(),
