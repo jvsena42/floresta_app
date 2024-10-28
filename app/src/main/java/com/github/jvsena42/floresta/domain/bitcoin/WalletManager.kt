@@ -120,8 +120,6 @@ class WalletManager(
                 connection = dbConnection
             )
 
-            florestaRpc.loadDescriptor(descriptor.toString()).firstOrNull()
-
             Log.d(TAG, "loadWallet: in network ${wallet.network()}")
 
             return Result.success(Unit)
