@@ -6,6 +6,7 @@ import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
 import org.bitcoindevkit.Descriptor
 import org.rustbitcoin.bitcoin.Network
 import com.florestad.Config
+import com.github.jvsena42.floresta.presentation.util.removeEndChain
 import com.florestad.Network as FlorestaNetwork
 import kotlin.let
 
@@ -32,7 +33,7 @@ class FlorestaDaemonImpl(
                 Descriptor(
                     descriptor = it.descriptor,
                     Network.SIGNET
-                ).toString()
+                ).toString().removeEndChain()
             }
             Log.d(TAG, "start: descriptor : $descriptor")
             Log.d(TAG, "start: datadir: $datadir")

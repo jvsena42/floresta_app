@@ -5,6 +5,7 @@ import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetPeerInfoResponse
 import com.github.jvsena42.floresta.domain.model.florestaRPC.RpcMethods
+import com.github.jvsena42.floresta.presentation.util.removeEndChain
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -37,9 +38,9 @@ class FlorestaRpcImpl(
     }
 
     override suspend fun loadDescriptor(descriptor: String): Flow<Result<JSONObject>> = flow {
-        Log.d(TAG, "loadDescriptor: $descriptor")
+        Log.d(TAG, "loadDescriptor: ${descriptor.removeEndChain()}")
         val arguments = JSONArray()
-        arguments.put(descriptor)
+        arguments.put(descriptor.removeEndChain())
 
         getBlockchainInfo().first().onSuccess { result ->
             Log.d(TAG, "loadDescriptor: loading initial block: ${result.result.ibd}")

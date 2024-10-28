@@ -19,3 +19,14 @@ fun ULong?.formatInBtc(): String {
 //    }
 //    return DecimalFormat("0.00000000").format(balanceInSats)
 //}
+
+fun String.removeEndChain() = this.replace("/0/*", "").removeAfterClosingParenthesis()
+
+private fun String.removeAfterClosingParenthesis(): String {
+    val closingParenthesisIndex = this.indexOfFirst { it == ')' }
+    return if (closingParenthesisIndex != -1) {
+        this.substring(0, closingParenthesisIndex + 1)
+    } else {
+        this // Return original string if ")" is not found
+    }
+}
