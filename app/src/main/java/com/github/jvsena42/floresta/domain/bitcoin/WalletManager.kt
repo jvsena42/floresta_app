@@ -167,7 +167,7 @@ class WalletManager(
                 fullScanRequest = fullScanRequest,
                 stopGap = 20u,
                 batchSize = 10u,
-                fetchPrevTxouts = true
+                fetchPrevTxouts = false
             )
             wallet.applyUpdate(update)
             wallet.persist(dbConnection)
@@ -191,7 +191,7 @@ class WalletManager(
                 val update = blockchainClient.sync(
                     syncRequest = syncRequest,
                     batchSize = 100u,
-                    fetchPrevTxouts = true
+                    fetchPrevTxouts = false
                 )
                 wallet.applyUpdate(update)
                 wallet.persist(dbConnection)
@@ -228,8 +228,6 @@ class WalletManager(
     fun listTransactions(): List<TransactionDetails> {
         return wallet.transactions().map { tx ->
             val (sent, received) = wallet.sentAndReceived(tx.transaction)
-            val fee = wallet.calculateFee(tx.transaction)
-            val feeRate = wallet.calculateFeeRate(tx.transaction)
             val txType: TxType = txType(sent = sent.toSat(), received = received.toSat())
             val chainPosition: ChainPosition = when (val position = tx.chainPosition) {
                 is BdkChainPosition.Unconfirmed -> ChainPosition.Unconfirmed
@@ -243,8 +241,6 @@ class WalletManager(
                 txid = tx.transaction.computeTxid(),
                 sent = sent,
                 received = received,
-                fee = fee,
-                feeRate = feeRate,
                 txType = txType,
                 chainPosition = chainPosition
             )
