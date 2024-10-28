@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -44,7 +45,7 @@ class FlorestaRpcImpl(
             Log.d(TAG, "loadDescriptor: loading initial block: ${result.result.ibd}")
             if (result.result.ibd) {
                 delay(10.seconds)
-                loadDescriptor(descriptor).first()
+                loadDescriptor(descriptor).firstOrNull()
             } else {
                 emit(
                     sendJsonRpcRequest(
@@ -56,7 +57,7 @@ class FlorestaRpcImpl(
             }
         }.onFailure {
             delay(30.seconds)
-            loadDescriptor(descriptor).first()
+            loadDescriptor(descriptor).firstOrNull()
         }
     }
 
@@ -70,6 +71,7 @@ class FlorestaRpcImpl(
             arguments
         ).fold(
             onSuccess = { json ->
+                Log.d(TAG, "getPeerInfo: ")
                 emit(
                     Result.success(
                         gson.fromJson(json.toString(), GetPeerInfoResponse::class.java)
