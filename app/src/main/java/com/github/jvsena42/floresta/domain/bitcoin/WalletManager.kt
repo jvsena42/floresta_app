@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.bitcoindevkit.Address
 import org.bitcoindevkit.AddressInfo
@@ -98,7 +99,7 @@ class WalletManager(
         )
 
         walletRepository.saveMnemonic(mnemonic.toString())
-        florestaRpc.loadDescriptor(descriptor.toString())
+        florestaRpc.loadDescriptor(descriptor.toString()).first()
     }
 
     suspend fun loadWallet(): Result<Unit> {
@@ -119,7 +120,7 @@ class WalletManager(
                 connection = dbConnection
             )
 
-            florestaRpc.loadDescriptor(descriptor.toString())
+            florestaRpc.loadDescriptor(descriptor.toString()).first()
 
             Log.d(TAG, "loadWallet: in network ${wallet.network()}")
 
@@ -157,7 +158,7 @@ class WalletManager(
             changeDescriptor.toStringWithSecret()
         )
         walletRepository.saveMnemonic(mnemonic.toString())
-        florestaRpc.loadDescriptor(descriptor.toString())
+        florestaRpc.loadDescriptor(descriptor.toString()).first()
     }
 
     private suspend fun fullScan() {

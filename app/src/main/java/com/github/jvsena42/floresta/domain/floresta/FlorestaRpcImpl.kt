@@ -41,9 +41,10 @@ class FlorestaRpcImpl(
         arguments.put(descriptor)
 
         getBlockchainInfo().first().onSuccess { result ->
+            Log.d(TAG, "loadDescriptor: loading initial block: ${result.result.ibd}")
             if (result.result.ibd) {
                 delay(10.seconds)
-                loadDescriptor(descriptor)
+                loadDescriptor(descriptor).first()
             } else {
                 emit(
                     sendJsonRpcRequest(
@@ -55,7 +56,7 @@ class FlorestaRpcImpl(
             }
         }.onFailure {
             delay(30.seconds)
-            loadDescriptor(descriptor)
+            loadDescriptor(descriptor).first()
         }
     }
 
