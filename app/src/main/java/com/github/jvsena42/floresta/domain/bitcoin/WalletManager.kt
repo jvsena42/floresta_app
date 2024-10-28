@@ -1,6 +1,7 @@
 package com.github.jvsena42.floresta.domain.bitcoin
 
 import android.util.Log
+import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.model.ChainPosition
 import com.github.jvsena42.floresta.domain.model.Constants.PERSISTENCE_VERSION
 import com.github.jvsena42.floresta.domain.model.TransactionDetails
@@ -26,7 +27,8 @@ import org.bitcoindevkit.ChainPosition as BdkChainPosition
 
 class WalletManager(
     dbPath: String,
-    private val walletRepository: WalletRepository
+    private val walletRepository: WalletRepository,
+    private val florestaRpc: FlorestaRpc
 ) {
 
     private lateinit var dbConnection: Connection
@@ -61,7 +63,7 @@ class WalletManager(
         )
     }
 
-    fun createWallet() {
+    suspend fun createWallet() {
         val mnemonic = Mnemonic(WordCount.WORDS12)
         val bip32ExtendedRootKey = DescriptorSecretKey(Network.SIGNET, mnemonic, null)
         val descriptor: Descriptor = Descriptor.newBip84(
@@ -88,9 +90,10 @@ class WalletManager(
         )
 
         walletRepository.saveMnemonic(mnemonic.toString())
+        florestaRpc.loadDescriptor(descriptor.toString())
     }
 
-    fun loadWallet(): Result<Unit> {
+    suspend fun loadWallet(): Result<Unit> {
         return try {
             val result = walletRepository.getInitialWalletData().onFailure { e ->
                 return@loadWallet Result.failure(e)
@@ -108,6 +111,8 @@ class WalletManager(
                 connection = dbConnection
             )
 
+            florestaRpc.loadDescriptor(descriptor.toString())
+
             Log.d(TAG, "loadWallet: in network ${wallet.network()}")
 
             return Result.success(Unit)
@@ -117,7 +122,7 @@ class WalletManager(
         }
     }
 
-    fun recoverWallet(recoveryPhrase: String) {
+    suspend fun recoverWallet(recoveryPhrase: String) {
         val mnemonic = Mnemonic.fromString(recoveryPhrase)
         val bip32ExtendedRootKey = DescriptorSecretKey(Network.SIGNET, mnemonic, null)
 
@@ -144,6 +149,7 @@ class WalletManager(
             changeDescriptor.toStringWithSecret()
         )
         walletRepository.saveMnemonic(mnemonic.toString())
+        florestaRpc.loadDescriptor(descriptor.toString())
     }
 
     private fun fullScan() {

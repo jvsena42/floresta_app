@@ -13,7 +13,6 @@ import kotlin.time.Duration.Companion.seconds
 
 interface FlorestaDaemon {
     suspend fun start()
-    suspend fun restart()
     suspend fun stop()
 }
 
@@ -57,16 +56,6 @@ class FlorestaDaemonImpl(
             }
         } catch (e: Exception) {
             Log.e(TAG, "start error: ", e)
-        }
-    }
-
-    override suspend fun restart() {
-        if (isRunning) {
-            stop()
-            delay(3.seconds)
-            start()
-        } else {
-            start()
         }
     }
 

@@ -20,7 +20,6 @@ import kotlin.time.Duration.Companion.seconds
 class HomeViewModel(
     private val walletRepository: WalletRepository,
     private val walletManager: WalletManager,
-    private val florestaDaemon: FlorestaDaemon,
     private val florestaRpc: FlorestaRpc
 ) : ViewModel() {
 
@@ -29,15 +28,19 @@ class HomeViewModel(
 
     init {
         syncInLoop()
-        if (walletRepository.doesWalletExist()) {
-            Log.d(TAG, "mnemonic: ${walletRepository.getMnemonic().getOrNull()}")
-            walletManager.loadWallet()
-        }
+        setup()
     }
 
     fun onAction(action: HomeActions) {
         when (action) {
             HomeActions.OnClickRefresh -> handleRefresh()
+        }
+    }
+
+    private fun setup() = viewModelScope.launch(Dispatchers.IO) {
+        if (walletRepository.doesWalletExist()) {
+            Log.d(TAG, "mnemonic: ${walletRepository.getMnemonic().getOrNull()}")
+            walletManager.loadWallet()
         }
     }
 
@@ -61,7 +64,6 @@ class HomeViewModel(
         } else {
             Log.d(TAG, "setup: Wallet does not exists")
             walletManager.createWallet()
-            florestaDaemon.restart()
         }
     }
 

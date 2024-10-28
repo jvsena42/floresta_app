@@ -48,7 +48,6 @@ val presentationModule = module {
         HomeViewModel(
             walletRepository = get<WalletRepository>(),
             walletManager = get(),
-            florestaDaemon = get(),
             florestaRpc = get()
         )
     }
@@ -60,7 +59,8 @@ val domainModule = module {
     single {
         WalletManager(
             dbPath = androidContext().filesDir.toString(),
-            walletRepository = get()
+            walletRepository = get(),
+            florestaRpc = get()
         )
     }
     single<WalletRepository> {
