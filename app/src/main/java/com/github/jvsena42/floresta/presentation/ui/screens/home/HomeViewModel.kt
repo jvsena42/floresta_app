@@ -14,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -47,7 +48,7 @@ class HomeViewModel(
 
     private fun handleRefresh() = viewModelScope.launch(Dispatchers.IO) {
         _uiState.update { it.copy(isRefreshEnabled = false) }
-        florestaRpc.rescan()
+        florestaRpc.rescan().firstOrNull()
         delay(10.seconds)
         _uiState.update { it.copy(isRefreshEnabled = true) }
     }
