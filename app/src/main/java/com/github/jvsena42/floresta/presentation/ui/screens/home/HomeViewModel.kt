@@ -55,7 +55,7 @@ class HomeViewModel(
     private suspend fun updateUI() {
         if (walletRepository.doesWalletExist()) {
             val balanceSats = walletManager.getBalance()
-            val listTransactions = walletManager.listTransactions().filter { it.chainPosition is ChainPosition.Confirmed }.map { it.toTransactionVM() }
+            val listTransactions = walletManager.listTransactions().map { it.toTransactionVM() }
             Log.d(TAG, "setup: Wallet exists. balance: $balanceSats")
             _uiState.update {
                 it.copy(
