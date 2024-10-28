@@ -64,6 +64,7 @@ class HomeViewModel(
         } else {
             Log.d(TAG, "setup: Wallet does not exists")
             walletManager.createWallet()
+//            walletManager.recoverWallet("bird unique ridge dose run problem scare label teach return inflict struggle")
         }
     }
 
@@ -72,7 +73,6 @@ class HomeViewModel(
             delay(5.seconds)
             updateUI()
             walletManager.sync()
-            delay(5.seconds)
             syncInLoop()
         }
     }

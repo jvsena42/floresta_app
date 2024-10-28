@@ -3,7 +3,7 @@
 
 @file:Suppress("NAME_SHADOWING")
 
-package uniffi.floresta;
+package com.florestad
 
 // Common helper code.
 //
