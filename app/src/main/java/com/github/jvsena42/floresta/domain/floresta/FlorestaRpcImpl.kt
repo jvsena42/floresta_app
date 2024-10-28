@@ -4,13 +4,17 @@ import android.util.Log
 import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetBlockchainInfoResponse
 import com.github.jvsena42.floresta.domain.model.florestaRPC.GetPeerInfoResponse
+import com.github.jvsena42.floresta.domain.model.florestaRPC.RpcMethods
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.time.Duration.Companion.seconds
 
 class FlorestaRpcImpl(
     private val gson: Gson,
@@ -25,10 +29,34 @@ class FlorestaRpcImpl(
         emit(
             sendJsonRpcRequest(
                 host,
-                "rescan",
+                RpcMethods.RESCAN.method,
                 arguments
             )
         )
+    }
+
+    override suspend fun loadDescriptor(descriptor: String): Flow<Result<JSONObject>> = flow {
+        Log.d(TAG, "loadDescriptor: $descriptor")
+        val arguments = JSONArray()
+        arguments.put(descriptor)
+
+        getBlockchainInfo().first().onSuccess { result ->
+            if (result.result.ibd) {
+                delay(10.seconds)
+                loadDescriptor(descriptor)
+            } else {
+                emit(
+                    sendJsonRpcRequest(
+                        host,
+                        RpcMethods.LOAD_DESCRIPTOR.method,
+                        arguments
+                    )
+                )
+            }
+        }.onFailure {
+            delay(30.seconds)
+            loadDescriptor(descriptor)
+        }
     }
 
     override suspend fun getPeerInfo(): Flow<Result<GetPeerInfoResponse>> = flow {
@@ -37,7 +65,7 @@ class FlorestaRpcImpl(
 
         sendJsonRpcRequest(
             host,
-            "getpeerinfo",
+            RpcMethods.GET_PEER_INFO.method,
             arguments
         ).fold(
             onSuccess = { json ->
@@ -54,10 +82,6 @@ class FlorestaRpcImpl(
         )
     }
 
-    override suspend fun getProgress(): Flow<Result<JSONObject>> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun stop(): Flow<Result<JSONObject>> = flow {
         Log.d(TAG, "stop: ")
         val arguments = JSONArray()
@@ -65,7 +89,7 @@ class FlorestaRpcImpl(
         emit(
             sendJsonRpcRequest(
                 host,
-                "stop",
+                RpcMethods.STOP.method,
                 arguments
             )
         )
@@ -77,7 +101,7 @@ class FlorestaRpcImpl(
 
         sendJsonRpcRequest(
             host,
-            "getblockchaininfo",
+            RpcMethods.GET_BLOCKCHAIN_INFO.method,
             arguments
         ).fold(
             onSuccess = { json ->
