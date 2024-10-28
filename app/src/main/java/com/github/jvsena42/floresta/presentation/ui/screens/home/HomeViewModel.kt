@@ -7,6 +7,7 @@ import com.github.jvsena42.floresta.data.FlorestaRpc
 import com.github.jvsena42.floresta.domain.bitcoin.WalletManager
 import com.github.jvsena42.floresta.domain.bitcoin.WalletRepository
 import com.github.jvsena42.floresta.domain.floresta.FlorestaDaemon
+import com.github.jvsena42.floresta.domain.model.ChainPosition
 import com.github.jvsena42.floresta.presentation.util.formatInBtc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -54,11 +55,13 @@ class HomeViewModel(
     private suspend fun updateUI() {
         if (walletRepository.doesWalletExist()) {
             val balanceSats = walletManager.getBalance()
+            val listTransactions = walletManager.listTransactions().filter { it.chainPosition is ChainPosition.Confirmed }.map { it.toTransactionVM() }
             Log.d(TAG, "setup: Wallet exists. balance: $balanceSats")
             _uiState.update {
                 it.copy(
                     balanceBTC = balanceSats.formatInBtc(),
-                    balanceSats = balanceSats.toString()
+                    balanceSats = balanceSats.toString(),
+                    transactions = listTransactions
                 )
             }
         } else {
