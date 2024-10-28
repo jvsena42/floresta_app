@@ -1,10 +1,10 @@
 package com.github.jvsena42.floresta.presentation.ui.screens.home
 
+import android.text.format.DateFormat
 import com.github.jvsena42.floresta.domain.model.ChainPosition
 import com.github.jvsena42.floresta.domain.model.TransactionDetails
 import com.github.jvsena42.floresta.domain.model.TxType
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.Calendar
 import java.util.Locale
 
 data class TransactionVM(
@@ -16,13 +16,13 @@ data class TransactionVM(
 
 fun TransactionDetails.toTransactionVM() = TransactionVM(
     title = this.txid,
-    date = if (this.chainPosition is ChainPosition.Confirmed) convertMillisecondsToDateString(this.chainPosition.timestamp.toLong()) else "",
+    date = if (this.chainPosition is ChainPosition.Confirmed) this.chainPosition.timestamp.timestampToString() else "",
     amount = (if (txType == TxType.RECEIVE) this.received.toSat() else this.sent.toSat()).toString(),
     isReceived = txType == TxType.RECEIVE
 )
 
-private fun convertMillisecondsToDateString(milliseconds: Long): String {
-    val date = Date(milliseconds)
-    val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    return format.format(date)
+fun ULong.timestampToString(): String {
+    val calendar = Calendar.getInstance(Locale.ENGLISH)
+    calendar.timeInMillis = (this * 1000u).toLong()
+    return DateFormat.format("MMMM d yyyy HH:mm", calendar).toString()
 }
