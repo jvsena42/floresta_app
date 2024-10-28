@@ -9,6 +9,7 @@ import com.github.jvsena42.floresta.domain.model.TxType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.bitcoindevkit.Address
 import org.bitcoindevkit.AddressInfo
@@ -27,6 +28,7 @@ import org.bitcoindevkit.WordCount
 import org.rustbitcoin.bitcoin.Amount
 import org.rustbitcoin.bitcoin.FeeRate
 import org.rustbitcoin.bitcoin.Network
+import kotlin.time.Duration.Companion.seconds
 import org.bitcoindevkit.ChainPosition as BdkChainPosition
 
 class WalletManager(
@@ -158,23 +160,31 @@ class WalletManager(
         florestaRpc.loadDescriptor(descriptor.toString())
     }
 
-    private fun fullScan() {
-        val fullScanRequest = wallet.startFullScan().build()
-        val update: Update = blockchainClient.fullScan(
-            fullScanRequest = fullScanRequest,
-            stopGap = 100u,
-            batchSize = 10u,
-            fetchPrevTxouts = true
-        )
-        wallet.applyUpdate(update)
-        wallet.persist(dbConnection)
+    private suspend fun fullScan() {
+        Log.d(TAG, "fullScan: ")
+        try {
+            val fullScanRequest = wallet.startFullScan().build()
+            val update: Update = blockchainClient.fullScan(
+                fullScanRequest = fullScanRequest,
+                stopGap = 20u,
+                batchSize = 10u,
+                fetchPrevTxouts = true
+            )
+            wallet.applyUpdate(update)
+            wallet.persist(dbConnection)
+        } catch (e: Exception) {
+            Log.e(TAG, "fullScan error:", e)
+        }
     }
 
-    fun sync() {
+    suspend fun sync() {
+        if (!walletRepository.doesWalletExist()) return
+
         if (fullScanRequired) {
             Log.d(TAG, "sync: fullScanRequired")
-            fullScan()
             fullScanRequired = false
+            delay(15.seconds)
+            fullScan()
         } else {
             Log.d(TAG, "sync: normal sync")
             val syncRequest = wallet.startSyncWithRevealedSpks().build()

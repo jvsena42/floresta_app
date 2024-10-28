@@ -72,7 +72,6 @@ class HomeViewModel(
             delay(5.seconds)
             updateUI()
             walletManager.sync()
-            delay(5.seconds)
             syncInLoop()
         }
     }
