@@ -79,7 +79,7 @@ private fun ScreenHome(
                 }
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -113,7 +113,7 @@ private fun ScreenHome(
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(42.dp))
 
             Column(
                 modifier = Modifier
@@ -129,12 +129,12 @@ private fun ScreenHome(
                         )
                     )
             ) {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(34.dp))
 
                 Text(
                     text = stringResource(R.string.transactions),
                     style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(horizontal = 18.dp),
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
