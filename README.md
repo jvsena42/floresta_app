@@ -22,3 +22,6 @@ native APK to your devices. We currently support armv8 and x86_64. The minimum A
 
 ![screenshot1](/docs/screenshot1.webp)
 ![screenshot1](/docs/screenshot2.webp)
+
+## Design
+https://www.behance.net/gallery/211545769/Floresta-Wallet
