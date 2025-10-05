@@ -25,3 +25,6 @@ native APK to your devices. We currently support armv8 and x86_64. The minimum A
 
 ## Design
 https://www.behance.net/gallery/211545769/Floresta-Wallet
+
+## Alternatives
+Also, take a Look at [Floresta Node](https://github.com/jvsena42/floresta_node), a version of Floresta with just the Bitcoin node features
