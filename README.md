@@ -1,5 +1,4 @@
-# floresta_app
-
+# Floresta Wallet
 ![cover](/docs/Floresta_app_cover.png)
 
 This repository contains the code for an Android Bitcoin Wallet powered by [Floresta](https://github.com/vinteumorg/floresta). It currently works 
